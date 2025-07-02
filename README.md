@@ -1,7 +1,8 @@
 # Unnamed Machine Learning Framework (temp name)
----
 ## Table of Contents
+
 <!-- TOC -->
+
 ## Features
 #### Semisequential Setup
 > [!WARNING]
@@ -12,6 +13,8 @@
 >
 >This is a subtle flex that the first ML Framework I used (even semiseriously) was my own.
 
+---
+
 #### Modifed Layers
 Each Layer has its own
 * unique custom ID
@@ -19,6 +22,8 @@ Each Layer has its own
 * Activation function
 * Optimization function
 * dropout probability
+  
+---
 
 #### Load data to and from a specified JSON file
 This function can store and retrieve 
@@ -30,21 +35,29 @@ This function can store and retrieve
 * optimization function per layer 
 * any paramters (if applicable) that the optimization function needs.
   
+---
+  
 #### Training function
 * Handles everything for you
 * Can change batch size
 * Auto shuffles datasets in batches
 * Prints loss and time taken for every epoch
 
+---
+
 #### Evaluation function
 Evaluates the network and send the following data
 * Accuracy
 * A label-wise confusion matrix that can be color coded using ```utils.py```
 
+---
+
 #### Initialization Functions
 * Xavier
 * He
 * Uniform Xavier
+
+---
 
 #### Activation Functions
 * Sigmoid
@@ -53,23 +66,31 @@ Evaluates the network and send the following data
 * Softmax*
     ⚠️ **Important**: While Softmax is indeed an activation function, it has been defined within ```loss.py``` as a combination of Softmax and CCE since they are often used together.
 
+---
+
 #### Loss Functions
 * Binary Cross Entropy (BCE)
 * Mean Squared Error (MSE)
 * Softmax + Categorical Cross Entropy (CCE)
+
+---
 
 #### Learning Rate Decay Functions
 * Step Decay
 * Exponential Decay
 * Linear Decay
 * Cosine Annealing
-  
+
+---
+
 #### Optimization Functions
 * Stochastic Gradient Descent (SGD)
 * SGD with momentum
 * Nesterov Accelerated Gradient (NAG)
 * Root Mean Square Propogation (RMSProp)
 * Adaptive Movement Estimation (Adam)
+
+---
 
 #### Utility Functions
 
