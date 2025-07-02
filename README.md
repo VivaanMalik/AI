@@ -65,7 +65,8 @@ Evaluates the network and send the following data
 * ReLU
 * Leaky ReLU
 * Softmax*
-    ⚠️ **Important**: While Softmax is indeed an activation function, it has been defined within ```loss.py``` as a combination of Softmax and CCE since they are often used together.
+
+⚠️ **Important**: While Softmax is indeed an activation function, it has been defined within ```loss.py``` as a combination of Softmax and CCE since they are often used together.
 
 ---
 
