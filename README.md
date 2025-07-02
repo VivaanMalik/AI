@@ -1,6 +1,10 @@
 # Unnamed Machine Learning Framework (temp name)
-## Table of Contents
+A pure python ML framwork from scratch
 
+![Evaluation](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+
+
+## Table of Contents
 <!-- TOC -->
 - [Unnamed Machine Learning Framework (temp name)](#unnamed-machine-learning-framework-temp-name)
   - [Table of Contents](#table-of-contents)
@@ -308,7 +312,6 @@ Evaluates the network and send the following data
 > min_lr: lower bound for the lerning rate
 > total_epoch: this does not need to be filled out
 > ```
-
 
 ## Example program
 ```
