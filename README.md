@@ -8,11 +8,11 @@
 > [!WARNING]
 >**Incoming yap**
 
-> You can add layers to your network and compile them, but a few functions have to be defined as a parameter when the layer is defined.
-> 
-> The functions are not separated from the layer as I did not know about the "Sequential Setup" that is widely used until I tested my network on tensorflow to compare speeds and accuracy. 
->
->This is a subtle flex that the first ML Framework I used (even semiseriously) was my own.
+You can add layers to your network and compile them, but a few functions have to be defined as a parameter when the layer is defined.
+
+The functions are not separated from the layer as I did not know about the "Sequential Setup" that is widely used until I tested my network on tensorflow to compare speeds and accuracy. 
+
+This is a subtle flex that the first ML Framework I used (even semiseriously) was my own.
 
 ---
 
