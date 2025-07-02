@@ -111,43 +111,43 @@ Evaluates the network and send the following data
 
 > method add(layer)
 > ```
-> layer - Layer class to add
+> layer: Layer class to add
 > ```
 
 > method load_data_from_JSON(filepath)
 > ```
-> filepath - file path of JSON file to use
+> filepath: file path of JSON file to use
 > ```
 
 > method load_data_to_JSON(filepath)
 > ```
-> filepath - file path of JSON file to use
+> filepath: file path of JSON file to use
 > ```
 
 > method compile_network(loss, initializer = None, lrdecayfunc = None)
 > ```
-> loss - set loss function
-> initializer - set initializer
-> lrdecayfunc - set decay function for learning rate
+> loss: set loss function
+> initializer: set initializer
+> lrdecayfunc: set decay function for learning rate
 > ```
 
 > method train(input_values, target_values, epochs, batch_size)
 > ```
-> input_values - input value dataset list
-> target_values - target value dataset list
-> epochs - no. of forward+baclward propogation cycles
-> batch_size - affects how much the neural network 'spreads'
+> input_values: input value dataset list
+> target_values: target value dataset list
+> epochs: no. of forward+baclward propogation cycles
+> batch_size: affects how much the neural network 'spreads'
 > ```
 
 > method predict(input_values)
 > ```
-> input_values - input value dataset list
+> input_values: input value dataset list
 > ```
 
 > method evaluate(testinput, testtargetoutput)
 > ```
-> testinput - input value dataset list
-> testtargetoutput - target value dataset list
+> testinput: input value dataset list
+> testtargetoutput: target value dataset list
 > ```
 
 ---
@@ -155,12 +155,12 @@ Evaluates the network and send the following data
 #### layer
 > class Layer(ID, PreviousLayerNodeCount, CurrentLayerNodeCount, ActivationFunction = None, OptimizingFunction = StochasticGradientDescent(), DropOutProbability = 0)
 > ```
-> ID - Custom 'name' to give the layer
-> PreviousLayerNodeCount - no. of nodes in the previous layer
-> CurrentLayerNodeCount - no. of nodes in the layer being defined
-> ActivationFunction - class of the activation function, if None its passed without being modified
-> OptimizingFunction - class of the Optimization function, SGD by default
-> DropOutProbability - probability to drop nodes out, 0 by default
+> ID: Custom 'name' to give the layer
+> PreviousLayerNodeCount: no. of nodes in the previous layer
+> CurrentLayerNodeCount: no. of nodes in the layer being defined
+> ActivationFunction: class of the activation function, if None its passed without being modified
+> OptimizingFunction: class of the Optimization function, SGD by default
+> DropOutProbability: probability to drop nodes out, 0 by default
 > ```
 
 ---
@@ -222,38 +222,38 @@ Evaluates the network and send the following data
 #### optimizer
 > class StochasticGradientDescent(learning_rate = 0.01, load_param = None)
 > ```
-> learning_rate - affects change in weights and biases
-> load_param - this does not need to be filled out
+> learning_rate: affects change in weights and biases
+> load_param: this does not need to be filled out
 > ```
 
 > class SGDMomentum(momentum_coeff = 0.9, learning_rate = 0.01, load_param = None)
 > ```
-> momentum_coeff - affects how much of the previous momentum is retained
-> learning_rate - affects change in weights and biases
-> load_param - this does not need to be filled out
+> momentum_coeff: affects how much of the previous momentum is retained
+> learning_rate: affects change in weights and biases
+> load_param: this does not need to be filled out
 > ```
 
 > class NesterovAcceleratedGradient(momentum_coeff = 0.9, learning_rate = 0.01, load_param = None)
 > ```
-> momentum_coeff - affects how much of the previous momentum is retained
-> learning_rate - affects change in weights and biases
-> load_param - this does not need to be filled out
+> momentum_coeff: affects how much of the previous momentum is retained
+> learning_rate: affects change in weights and biases
+> load_param: this does not need to be filled out
 > ```
 
 > class RMSProp(decay_rate = 0.9, learning_rate = 0.01, load_param = None)
 > ```
-> decay_rate - affects how fast the change in weights and biases change
-> learning_rate - affects change in weights and biases
-> load_param - this does not need to be filled out
+> decay_rate: affects how fast the change in weights and biases change
+> learning_rate: affects change in weights and biases
+> load_param: this does not need to be filled out
 > ```
 
 > class Adam(first_moment_decay_rate = 0.9, second_moment_decay_rate = 0.999, learning_rate = 0.001, timestep = 0)
 > ```
-> first_moment_decay_rate - affects mean
-> second_moment_decay_rate - affects variance
-> learning_rate - affects change in weights and biases
-> timestep - this does not need to be filled out
-> load_param - this does not need to be filled out
+> first_moment_decay_rate: affects mean
+> second_moment_decay_rate: affects variance
+> learning_rate: affects change in weights and biases
+> timestep: this does not need to be filled out
+> load_param: this does not need to be filled out
 > ```
 
 ---
@@ -261,28 +261,28 @@ Evaluates the network and send the following data
 #### learning_rate_decay
 > class StepDecay(initial_lr, decay_step_size, decay_factor = 0.5)
 > ```
-> initial_lr - initial learning rate to start with
-> decay_step_size - updates learning rate every _ steps
-> decay_factor - affects how drastically learning rate is changed
+> initial_lr: initial learning rate to start with
+> decay_step_size: updates learning rate every _ steps
+> decay_factor: affects how drastically learning rate is changed
 > ```
 
 > class ExponentialDecay(initial_lr, decay_constant = 0.01)
 > ```
-> initial_lr - initial learning rate to start with
-> decay_constant - affects how drastically learning rate is changed
+> initial_lr: initial learning rate to start with
+> decay_constant: affects how drastically learning rate is changed
 > ```
 
 > class LinearDecay(initial_lr, total_epoch = None)
 > ```
-> initial_lr - initial learning rate to start with
-> total_epoch - this does not need to be filled out
+> initial_lr: initial learning rate to start with
+> total_epoch: this does not need to be filled out
 > ```
 
 > class CosineAnnealing(initial_lr, min_lr, total_epoch = None)
 > ```
-> initial_lr - initial learning rate to start with
-> min_lr - lower bound for the lerning rate
-> total_epoch - this does not need to be filled out
+> initial_lr: initial learning rate to start with
+> min_lr: lower bound for the lerning rate
+> total_epoch: this does not need to be filled out
 > ```
 
 
