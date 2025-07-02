@@ -1,7 +1,7 @@
 # Unnamed Machine Learning Framework (temp name)
 A pure python ML framwork from scratch
 
-![Evaluation](https://github.com/[username]/[reponame]/blob/[branch]/image.jpg?raw=true)
+![Evaluation](https://github.com/VivaanMalik/AI/blob/main/READMEdata/evaluation.jpeg?raw=true)
 
 
 ## Table of Contents
