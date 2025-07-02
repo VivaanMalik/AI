@@ -1,8 +1,13 @@
 # Unnamed Machine Learning Framework (temp name)
-A pure python ML framwork from scratch
+A pure python ML framwork from scratch (only MLP as of now)
 
 ![Evaluation](https://github.com/VivaanMalik/AI/blob/main/READMEdata/evaluation.jpeg?raw=true)
+High Accuracy evaluation (slight overfitting)
 
+![Comparison with Tensorflow](https://github.com/VivaanMalik/AI/blob/main/READMEdata/evaluation.jpeg?raw=true)
+The only reason tensorflow was less acurate was due to me using lr decay (mb)
+BUT, the only reason tensorflow is faster, is because they use c++
+(mines PURELY python) 
 
 ## Table of Contents
 <!-- TOC -->
