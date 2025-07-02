@@ -82,7 +82,7 @@ Evaluates the network and send the following data
 
 #### network
 > class NeuralNetwork()
-> `no parameters`
+> ```no parameters```
 
 > method add(layer)
 > `layer - Layer class to add`
@@ -132,33 +132,33 @@ Evaluates the network and send the following data
 
 #### initializer
 > class Xavier()
-> `no parameters`
+> ```no parameters```
 
 > class He()
-> `no parameters`
+> ```no parameters```
 
 > class XavierUniform()
-> `no parameters`
+> ```no parameters```
 
 #### activations
 > class Sigmoid()
-> `no parameters`
+> ```no parameters```
 
 > class ReLU()
-> `no parameters`
+> ```no parameters```
 
 > class LeakyReLU()
-> `no parameters`
+> ```no parameters```
 
 #### losses
 > class BinaryCrossEntropy()
-> `no parameters`
+> ```no parameters```
 
 > class SoftmaxCategoricalCrossEntropy()
 > `no parameters (use None for activation function)`
 
 > class MeanSquaredError()
-> `no parameters`
+> ```no parameters```
 
 #### optimizer
 > class StochasticGradientDescent(learning_rate = 0.01, load_param = None)
