@@ -2,6 +2,30 @@
 ## Table of Contents
 
 <!-- TOC -->
+- [Unnamed Machine Learning Framework (temp name)](#unnamed-machine-learning-framework-temp-name)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+      - [Semisequential Setup](#semisequential-setup)
+      - [Modifed Layers](#modifed-layers)
+      - [Load data to and from a specified JSON file](#load-data-to-and-from-a-specified-json-file)
+      - [Training function](#training-function)
+      - [Evaluation function](#evaluation-function)
+      - [Initialization Functions](#initialization-functions)
+      - [Activation Functions](#activation-functions)
+      - [Loss Functions](#loss-functions)
+      - [Learning Rate Decay Functions](#learning-rate-decay-functions)
+      - [Optimization Functions](#optimization-functions)
+      - [Utility Functions](#utility-functions)
+  - [Documentation of classes and methods (per file)](#documentation-of-classes-and-methods-per-file)
+      - [network](#network)
+      - [layer](#layer)
+      - [initializer](#initializer)
+      - [activations](#activations)
+      - [losses](#losses)
+      - [optimizer](#optimizer)
+      - [learning\_rate\_decay](#learning_rate_decay)
+  - [Example program](#example-program)
+
 
 ## Features
 #### Semisequential Setup
