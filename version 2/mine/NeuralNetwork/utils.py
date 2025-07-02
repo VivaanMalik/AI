@@ -1,4 +1,5 @@
 import os
+import cupy as cp
 
 def PrettyPrintMatrix(attr, labelarray = None):
     os.system("color")
@@ -51,3 +52,10 @@ def PrettyPrintMatrix(attr, labelarray = None):
     table = [" | ".join(i) for i in table]
 
     return '\n'.join(table)+"\nReal Label (vertical) v/s Predicted Label (horizontal)"
+
+def AdjustOutput(labels, num_classes, epsilon = 0.01):
+    labels_modified = [[epsilon if i == 0.0 else 1-(epsilon*(num_classes-1)) for i in j] for j in labels]
+    return labels_modified
+
+def ConvertIntForClassification(labels, num_classes):
+    return cp.eye(num_classes)[labels].tolist()

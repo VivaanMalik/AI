@@ -6,10 +6,9 @@ num_classes = 10
 mnist_data = MNIST("samples")
 images, labels = mnist_data.load_training()
 images = [[j/255.0 for j in i] for i in images]
-labels = cp.eye(num_classes)[labels].tolist()
 
-epsilon = 0.01
-labels_modified = [[epsilon if i == 0.0 else 1-(epsilon*(num_classes-1)) for i in j] for j in labels]
+labels = nn.ConvertIntForClassification(labels, num_classes)
+labels_modified = nn.AdjustOutput(labels, num_classes)
 
 start_again = True
 train = True
