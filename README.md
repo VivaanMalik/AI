@@ -148,6 +148,8 @@ Evaluates the network and send the following data
 > testtargetoutput - target value dataset list
 > ```
 
+---
+
 #### layer
 > class Layer(ID, PreviousLayerNodeCount, CurrentLayerNodeCount, ActivationFunction = None, OptimizingFunction = StochasticGradientDescent(), DropOutProbability = 0)
 > ```
@@ -158,6 +160,8 @@ Evaluates the network and send the following data
 > OptimizingFunction - class of the Optimization function, SGD by default
 > DropOutProbability - probability to drop nodes out, 0 by default
 > ```
+
+---
 
 #### initializer
 > class Xavier()
@@ -175,6 +179,8 @@ Evaluates the network and send the following data
 > no parameters
 > ```
 
+---
+
 #### activations
 > class Sigmoid()
 > ```
@@ -191,6 +197,8 @@ Evaluates the network and send the following data
 > no parameters
 > ```
 
+---
+
 #### losses
 > class BinaryCrossEntropy()
 > ```
@@ -206,6 +214,8 @@ Evaluates the network and send the following data
 > ```
 > no parameters
 > ```
+
+---
 
 #### optimizer
 > class StochasticGradientDescent(learning_rate = 0.01, load_param = None)
@@ -243,6 +253,8 @@ Evaluates the network and send the following data
 > timestep - this does not need to be filled out
 > load_param - this does not need to be filled out
 > ```
+
+---
 
 #### learning_rate_decay
 > class StepDecay(initial_lr, decay_step_size, decay_factor = 0.5)
