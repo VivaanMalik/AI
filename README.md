@@ -82,16 +82,24 @@ Evaluates the network and send the following data
 
 #### network
 > class NeuralNetwork()
-> ```no parameters```
+> ```
+> no parameters
+> ```
 
 > method add(layer)
-> `layer - Layer class to add`
+> ```
+> layer - Layer class to add
+> ```
 
 > method load_data_from_JSON(filepath)
-> `filepath - file path of JSON file to use`
+> ```
+> filepath - file path of JSON file to use
+> ```
 
 > method load_data_to_JSON(filepath)
-> `filepath - file path of JSON file to use`
+> ```
+> filepath - file path of JSON file to use
+> ```
 
 > method compile_network(loss, initializer = None, lrdecayfunc = None)
 > ```
@@ -132,33 +140,51 @@ Evaluates the network and send the following data
 
 #### initializer
 > class Xavier()
-> ```no parameters```
+> ```
+> no parameters
+> ```
 
 > class He()
-> ```no parameters```
+> ```
+> no parameters
+> ```
 
 > class XavierUniform()
-> ```no parameters```
+> ```
+> no parameters
+> ```
 
 #### activations
 > class Sigmoid()
-> ```no parameters```
+> ```
+> no parameters
+> ```
 
 > class ReLU()
-> ```no parameters```
+> ```
+> no parameters
+> ```
 
 > class LeakyReLU()
-> ```no parameters```
+> ```
+> no parameters
+> ```
 
 #### losses
 > class BinaryCrossEntropy()
-> ```no parameters```
+> ```
+> no parameters
+> ```
 
 > class SoftmaxCategoricalCrossEntropy()
-> `no parameters (use None for activation function)`
+> ```
+> no parameters (use None for activation function)
+> ```
 
 > class MeanSquaredError()
-> ```no parameters```
+> ```
+> no parameters
+> ```
 
 #### optimizer
 > class StochasticGradientDescent(learning_rate = 0.01, load_param = None)
