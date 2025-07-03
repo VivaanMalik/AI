@@ -6,6 +6,7 @@ from .layer import Layer
 from .activations import FindActivation
 from .optimizer import *
 from .learning_rate_decay import *
+from .wieght_decay import *
 import time
 
 class NeuralNetwork():
@@ -16,6 +17,7 @@ class NeuralNetwork():
         self.LearningRateDecayFunc = None
         self.EpochNumber = 0
         self.TotalEpochNumber = 0
+        self.WeightDecayFunc = None
         self._load_data_from_json = False
 
     def add(self, layer:Layer): 
@@ -45,9 +47,10 @@ class NeuralNetwork():
         with open(filepath, 'w') as f:
             json.dump(data, f, indent=4)
 
-    def compile_network(self, loss, initializer = None, lrdecayfunc = None):
+    def compile_network(self, loss, initializer = None, lrdecayfunc = None, WeightDecayFunc = None):
         self.LossFunction = loss
         self.LearningRateDecayFunc = lrdecayfunc
+        self.WeightDecayFunc = WeightDecayFunc
         if not self._load_data_from_json:
             self.Initializer = initializer
             for i in self.Layers:
@@ -102,6 +105,10 @@ class NeuralNetwork():
                 loss = self.LossFunction.forward(prediction, target_batch)
                 grad = self.LossFunction.backward()
                 self.backward(grad)
+
+                if self.WeightDecayFunc!=None:
+                    for layer in self.Layers:
+                        loss+=self.WeightDecayFunc.GetAdditionalLoss(layer.weights)
 
                 # ONLY FOR NAG =============================================================
                 for layer in self.Layers:

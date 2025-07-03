@@ -6,3 +6,4 @@ from .losses import *
 from .optimizer import *
 from .utils import *
 from .learning_rate_decay import *
+from .wieght_decay import *

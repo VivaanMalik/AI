@@ -16,15 +16,15 @@ save = True
 
 model = nn.NeuralNetwork()
 if start_again:
-    model.add(nn.Layer("Layer the first", 784, 256, nn.ReLU(),  nn.Adam(learning_rate= 0.001), 0.2))
-    model.add(nn.Layer("Layer the second", 256, 128, nn.ReLU(), nn.Adam(learning_rate= 0.001), 0.2))
-    model.add(nn.Layer("Layer the third", 128, 64, nn.ReLU(),   nn.Adam(learning_rate= 0.001), 0.2))
-    model.add(nn.Layer("Layer the fourth", 64, 10, None,        nn.Adam(learning_rate= 0.001), 0.0))
+    model.add(nn.Layer("Layer the first", 784, 256, nn.ReLU(),  nn.Adam(learning_rate = 0.001), 0.2))
+    model.add(nn.Layer("Layer the second", 256, 128, nn.ReLU(), nn.Adam(learning_rate = 0.001), 0.2))
+    model.add(nn.Layer("Layer the third", 128, 64, nn.ReLU(),   nn.Adam(learning_rate = 0.001), 0.2))
+    model.add(nn.Layer("Layer the fourth", 64, 10, None,        nn.Adam(learning_rate = 0.001), 0.0))
 
-    model.compile_network(nn.SoftmaxCategoricalCrossEntropy(), nn.He(), nn.CosineAnnealing(0.001, 1e-5))
+    model.compile_network(nn.SoftmaxCategoricalCrossEntropy(), nn.He(), nn.CosineAnnealing(0.001, 1e-5), nn.L2Regularization(1e-4))
 else:
     model.load_data_from_JSON("data.json")
-    model.compile_network(nn.SoftmaxCategoricalCrossEntropy())
+    model.compile_network(nn.SoftmaxCategoricalCrossEntropy(), WeightDecayFunc=nn.L2Regularization(1e-4))
 
 if train:
     model.train(images, labels_modified, 10, 32)
