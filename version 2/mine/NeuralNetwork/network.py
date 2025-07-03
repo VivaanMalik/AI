@@ -1,13 +1,12 @@
 import os
-import cupy as cp
 import json
 import random
+import time
+import xp
 from .layer import Layer
 from .activations import FindActivation
-from .optimizer import *
-from .learning_rate_decay import *
-from .wieght_decay import *
-import time
+from .optimizer import NesterovAcceleratedGradient, FindOptimizer
+from multiprocessing import Process, set_start_method
 
 class NeuralNetwork():
     def __init__(self):
@@ -33,7 +32,7 @@ class NeuralNetwork():
 
             for i in data["LayerData"]:
                 layer = Layer(i["id"], i["PreviousNodeCount"], i["NodeCount"], FindActivation(i["ActivationFunction"]), FindOptimizer(i["OptimizerFunction"])(load_param = i["OptimizerFunctionParameters"]))
-                layer.InitializeOld(cp.array(i["weights"]), cp.array(i["biases"]))
+                layer.InitializeOld(xp.array(i["weights"]), xp.array(i["biases"]))
                 self.Layers.append(layer)
     
     def load_data_to_JSON(self, filepath):
@@ -83,8 +82,11 @@ class NeuralNetwork():
             random.shuffle(shuffled)
             input_values, target_values = zip(*shuffled)
             input_values, target_values = list(input_values), list(target_values)
-            input_values = cp.array(input_values)
-            target_values = cp.array(target_values)
+            input_values = xp.array(input_values)
+            target_values = xp.array(target_values)
+
+            pred_acc = xp.array([])
+            truth_acc = xp.array([])
 
             for i in range(0, n, batch_size):
                 input_batch = input_values[i:i+batch_size]
@@ -94,8 +96,8 @@ class NeuralNetwork():
                 for layer in self.Layers:
                     if isinstance(layer.Optimizer, NesterovAcceleratedGradient):
                         if not layer.Optimizer.setup:
-                            layer.Optimizer.weight_velocities = cp.zeros_like(layer.weights)
-                            layer.Optimizer.bias_velocities = cp.zeros_like(layer.biases)
+                            layer.Optimizer.weight_velocities = xp.zeros_like(layer.weights)
+                            layer.Optimizer.bias_velocities = xp.zeros_like(layer.biases)
                             layer.Optimizer.setup = True
                         layer.weights += layer.Optimizer.momentum_coeff * layer.Optimizer.weight_velocities
                         layer.biases  += layer.Optimizer.momentum_coeff * layer.Optimizer.bias_velocities
@@ -103,6 +105,12 @@ class NeuralNetwork():
 
                 prediction = self.forward(input_batch)
                 loss = self.LossFunction.forward(prediction, target_batch)
+
+                pred=xp.argmax(prediction, axis=1)
+                truth = xp.argmax(target_batch, axis = 1)
+                pred_acc = xp.concatenate((pred_acc, pred))
+                truth_acc = xp.concatenate((truth_acc, truth))
+
                 grad = self.LossFunction.backward()
                 self.backward(grad)
 
@@ -124,10 +132,12 @@ class NeuralNetwork():
                             self.LearningRateDecayFunc.SetTotalEpoch(self.TotalEpochNumber)
                         layer.Optimizer.UpdateLearningRate(self.LearningRateDecayFunc.decay(self.EpochNumber))
 
+            accuracy =  float(xp.mean(pred_acc == truth_acc))
+
             t = time.time()
             timediff = round(t - start_time, 2)
             total_time+=timediff
-            print("Epoch: "+str(self.EpochNumber)+" | Loss: "+str(loss)+ " ("+str(timediff)+"s)")
+            print("Epoch: "+str(self.EpochNumber)+" | Loss: "+str(round(float(loss), 5))+ " | Accuracy: "+str(round(accuracy*100, 2))+"% ("+str(timediff)+"s)")
             start_time = t
         
         print("Training ended in: "+str(round(total_time, 2))+"s")
@@ -136,21 +146,27 @@ class NeuralNetwork():
             l.isTraining = False
 
     def predict(self, input_vals):
-        return cp.argmax(self.forward(input_vals), axis=1)
+        return xp.argmax(self.forward(input_vals), axis=1)
 
-    def evaluate(self, testinput, testtargetoutput):
-        testinput = cp.array(testinput)
-        testtargetoutput = cp.array(testtargetoutput)
+    def evaluate(self, testinput, testtargetoutput, Metrics:list[str] = ["Accuracy", "ConfusionMatrix"]):
+        testinput = xp.array(testinput)
+        testtargetoutput = xp.array(testtargetoutput)
         pred=self.predict(testinput)
-        truth = cp.argmax(testtargetoutput, axis = 1)
+        truth = xp.argmax(testtargetoutput, axis = 1)
 
-        accuracy =  float(cp.mean(pred == truth))
+        accuracy = None
+        ConfusionMatrix = None
 
-        pred = pred.tolist()
-        truth = truth.tolist()
-        n = self.Layers[-1].Nodes
-        ConfusionMatrix = cp.zeros((n, n), dtype=int).tolist() 
-        for i in range(len(pred)):
-            ConfusionMatrix[truth[i]][pred[i]]+=1
+        if "Accuracy" in Metrics:
+            accuracy =  float(xp.mean(pred == truth))
+
+        if "ConfusionMatrix" in Metrics:
+            pred = pred.tolist()
+            truth = truth.tolist()
+            n = self.Layers[-1].Nodes
+            ConfusionMatrix = xp.zeros((n, n), dtype=int).tolist() 
+            for i in range(len(pred)):
+                ConfusionMatrix[truth[i]][pred[i]]+=1
 
         return {"Accuracy": accuracy, "ConfusionMatrix": ConfusionMatrix}
+    

@@ -1,11 +1,11 @@
-import cupy as cp
+import xp
 
 class Sigmoid:
     def __init__(self):
         self.output = None
 
     def forward(self, x):
-        self.output = cp.where(x >= 0, 1 / (1 + cp.exp(-x)), cp.exp(x) / (1 + cp.exp(x)))
+        self.output = xp.where(x >= 0, 1 / (1 + xp.exp(-x)), xp.exp(x) / (1 + xp.exp(x)))
         return self.output
     
     def backward(self, grad):
@@ -17,10 +17,10 @@ class ReLU:
 
     def forward(self, x):
         self.mask = x > 0
-        return cp.where(self.mask, x, 0)
+        return xp.where(self.mask, x, 0)
     
     def backward(self, grad):
-        return grad * cp.where(self.mask, 1, 0)
+        return grad * xp.where(self.mask, 1, 0)
 
 class LeakyReLU:
     def __init__(self, alpha = 0.01):
@@ -29,10 +29,10 @@ class LeakyReLU:
 
     def forward(self, x):
         self.mask = x > 0
-        return cp.where(self.mask, x, self.alpha*x)
+        return xp.where(self.mask, x, self.alpha*x)
     
     def backward(self, grad):
-        return grad * cp.where(self.mask, 1, self.alpha)
+        return grad * xp.where(self.mask, 1, self.alpha)
 
 def FindActivation(name):
     name = name.lower()

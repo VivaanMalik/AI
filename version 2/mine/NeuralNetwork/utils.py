@@ -1,5 +1,5 @@
 import os
-import cupy as cp
+import xp
 
 def PrettyPrintMatrix(attr, labelarray = None):
     os.system("color")
@@ -58,4 +58,4 @@ def AdjustOutput(labels, num_classes, epsilon = 0.01):
     return labels_modified
 
 def ConvertIntForClassification(labels, num_classes):
-    return cp.eye(num_classes)[labels].tolist()
+    return xp.eye(num_classes)[labels].tolist()

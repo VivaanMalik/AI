@@ -1,4 +1,4 @@
-import cupy as cp
+import xp
 
 class StochasticGradientDescent:
     def __init__(self, learning_rate = 0.01, load_param = None):
@@ -58,8 +58,8 @@ class NesterovAcceleratedGradient:
     def step(self, layer):
         if not self.setup:
             # setup
-            self.weight_velocities = cp.zeros_like(layer.weights)
-            self.bias_velocities = cp.zeros_like(layer.biases)
+            self.weight_velocities = xp.zeros_like(layer.weights)
+            self.bias_velocities = xp.zeros_like(layer.biases)
             self.setup = True
 
         self.weight_velocities = self.momentum_coeff * self.weight_velocities - self.learning_rate * layer.dW
@@ -91,15 +91,15 @@ class RMSProp:
     def step(self, layer):
         if not self.setup:
             # setup
-            self.running_avg_of_squared_weight_gradients = cp.zeros_like(layer.weights)
-            self.running_avg_of_squared_bias_gradients = cp.zeros_like(layer.biases)
+            self.running_avg_of_squared_weight_gradients = xp.zeros_like(layer.weights)
+            self.running_avg_of_squared_bias_gradients = xp.zeros_like(layer.biases)
             self.setup = True
         
         self.running_avg_of_squared_weight_gradients = self.decay_rate * self.running_avg_of_squared_weight_gradients + (1 - self.decay_rate) * (layer.dW ** 2)
         self.running_avg_of_squared_bias_gradients = self.decay_rate * self.running_avg_of_squared_bias_gradients + (1 - self.decay_rate) * (layer.dB ** 2)
 
-        layer.weights -= self.learning_rate * layer.dW / (cp.sqrt(self.running_avg_of_squared_weight_gradients + self.epsilon))
-        layer.biases -= self.learning_rate * layer.dB / (cp.sqrt(self.running_avg_of_squared_bias_gradients + self.epsilon))
+        layer.weights -= self.learning_rate * layer.dW / (xp.sqrt(self.running_avg_of_squared_weight_gradients + self.epsilon))
+        layer.biases -= self.learning_rate * layer.dB / (xp.sqrt(self.running_avg_of_squared_bias_gradients + self.epsilon))
         
     def UpdateLearningRate(self, lr):
         self.learning_rate = lr
@@ -124,10 +124,10 @@ class Adam:
     def step(self, layer):
         if not self.setup:
             # setup
-            self.first_moment_weights = cp.zeros_like(layer.weights)
-            self.second_moment_weights = cp.zeros_like(layer.weights)
-            self.first_moment_biases = cp.zeros_like(layer.biases)
-            self.second_moment_biases = cp.zeros_like(layer.biases)
+            self.first_moment_weights = xp.zeros_like(layer.weights)
+            self.second_moment_weights = xp.zeros_like(layer.weights)
+            self.first_moment_biases = xp.zeros_like(layer.biases)
+            self.second_moment_biases = xp.zeros_like(layer.biases)
             self.setup = True
         
         self.timestep+=1
@@ -146,8 +146,8 @@ class Adam:
         bias_corrected_variance_weights = self.second_moment_weights/(1-(self.second_moment_decay_rate ** self.timestep))
         bias_corrected_variance_biases = self.second_moment_biases/(1-(self.second_moment_decay_rate ** self.timestep))
 
-        layer.weights -= self.learning_rate * bias_corrected_mean_weights/(cp.sqrt(bias_corrected_variance_weights) + self.epsilon)
-        layer.biases -= self.learning_rate * bias_corrected_mean_biases/(cp.sqrt(bias_corrected_variance_biases) + self.epsilon)
+        layer.weights -= self.learning_rate * bias_corrected_mean_weights/(xp.sqrt(bias_corrected_variance_weights) + self.epsilon)
+        layer.biases -= self.learning_rate * bias_corrected_mean_biases/(xp.sqrt(bias_corrected_variance_biases) + self.epsilon)
     
     def UpdateLearningRate(self, lr):
         self.learning_rate = lr

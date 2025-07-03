@@ -1,4 +1,4 @@
-import cupy as cp
+import xp
         
 class BinaryCrossEntropy:
     def __init__(self):
@@ -7,9 +7,9 @@ class BinaryCrossEntropy:
         self.eps = 1e-9
 
     def forward(self, pred, target):
-        self.pred = cp.clip(pred, self.eps, 1 - self.eps) # prevent log(0)
+        self.pred = xp.clip(pred, self.eps, 1 - self.eps) # prevent log(0)
         self.target = target
-        return -cp.mean(target * cp.log(self.pred) + (1 - target) * cp.log(1 - self.pred))
+        return -xp.mean(target * xp.log(self.pred) + (1 - target) * xp.log(1 - self.pred))
 
     def backward(self):
         return (self.pred - self.target) / (self.pred * (1 - self.pred) * self.target.size)
@@ -20,12 +20,12 @@ class SoftmaxCategoricalCrossEntropy: # use None for activation function
         self.target = None
 
     def forward(self, x, target):
-        x_new = x - cp.max(x, axis=1, keepdims=True) # stable
-        exp = cp.exp(x_new)
-        self.probs = exp / cp.sum(exp, axis=1, keepdims=True)
+        x_new = x - xp.max(x, axis=1, keepdims=True) # stable
+        exp = xp.exp(x_new)
+        self.probs = exp / xp.sum(exp, axis=1, keepdims=True)
         self.target = target
-        log_probs = -cp.log(cp.clip(cp.sum(self.probs * target, axis=1) + 1e-9, 1e-9, 1.0))
-        return cp.mean(log_probs)
+        log_probs = -xp.log(xp.clip(xp.sum(self.probs * target, axis=1) + 1e-9, 1e-9, 1.0))
+        return xp.mean(log_probs)
 
     def backward(self):
         # Gradient of fused softmax + crossentropy
@@ -39,7 +39,7 @@ class MeanSquaredError:
     def forward(self, pred, target):
         self.pred = pred
         self.target = target
-        return cp.mean((pred - target) ** 2)
+        return xp.mean((pred - target) ** 2)
 
     def backward(self):
         return 2 * (self.pred - self.target) / self.target.size # derivative

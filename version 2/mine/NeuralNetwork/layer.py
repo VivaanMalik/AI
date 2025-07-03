@@ -1,4 +1,4 @@
-import cupy as cp
+import xp
 from .optimizer import *
 
 class Layer:
@@ -8,8 +8,8 @@ class Layer:
         self.Nodes = CurrentLayerNodeCount
         self.Shape = (self.PreviousNodes, self.Nodes)
         self.ActivationFunction = ActivationFunction
-        self.PreActivationValues = cp.array([0]*self.Nodes)
-        self.PostActivationValues = cp.array([0]*self.Nodes) 
+        self.PreActivationValues = xp.array([0]*self.Nodes)
+        self.PostActivationValues = xp.array([0]*self.Nodes) 
         self.Initialized = False
         self.Optimizer = OptimizingFunction
         self.isTraining = False
@@ -18,15 +18,15 @@ class Layer:
     # Initializaion functions
     def InitializeNew(self, func):
         self.weights, self.biases = func.initialize(self.Shape)
-        self.dW = cp.zeros_like(self.weights)
-        self.dB = cp.zeros_like(self.biases)
+        self.dW = xp.zeros_like(self.weights)
+        self.dB = xp.zeros_like(self.biases)
         self.Initialized = True
 
     def InitializeOld(self, weights, biases):
         self.weights = weights
         self.biases = biases
-        self.dW = cp.zeros_like(self.weights)
-        self.dB = cp.zeros_like(self.biases)
+        self.dW = xp.zeros_like(self.weights)
+        self.dB = xp.zeros_like(self.biases)
         self.Initialized = True
 
     # Propogation functions
@@ -41,7 +41,7 @@ class Layer:
             self.PostActivationValues = self.PreActivationValues
 
         if self.isTraining and self.Pdropout > 0.0:
-            self.dropout_mask = (cp.random.rand(*self.PostActivationValues.shape) > self.Pdropout)
+            self.dropout_mask = (xp.random.rand(*self.PostActivationValues.shape) > self.Pdropout)
 
             self.PostActivationValues *= self.dropout_mask
             self.PostActivationValues /= (1.0 - self.Pdropout)
@@ -60,7 +60,7 @@ class Layer:
         # gradient_output: ∂a/∂z
 
         self.dW = self.input.T @ gradient_output    # ∂L/∂W = inputᵀ · ∂L/∂z
-        self.dB = cp.sum(gradient_output, axis=0, keepdims=True)    # ∂L/∂b = sum over batch dimension
+        self.dB = xp.sum(gradient_output, axis=0, keepdims=True)    # ∂L/∂b = sum over batch dimension
 
         # ∂L/∂input = ∂L/∂z · Wᵀ
         return gradient_output @ self.weights.T

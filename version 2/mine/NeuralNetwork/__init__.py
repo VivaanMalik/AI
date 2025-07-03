@@ -1,5 +1,7 @@
+from .xp import *
+setup()
 from .layer import Layer
-from .network import NeuralNetwork
+from .network import *
 from .activations import *
 from .initalizers import *
 from .losses import *
