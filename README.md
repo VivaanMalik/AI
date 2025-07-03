@@ -28,6 +28,7 @@ BUT, the only reason tensorflow is faster, is because they use c++
       - [Loss Functions](#loss-functions)
       - [Learning Rate Decay Functions](#learning-rate-decay-functions)
       - [Optimization Functions](#optimization-functions)
+      - [Weight Decay Functions](#weight-decay-functions)
       - [Utility Functions](#utility-functions)
   - [Documentation of classes and methods (per file)](#documentation-of-classes-and-methods-per-file)
       - [network](#network)
@@ -37,6 +38,7 @@ BUT, the only reason tensorflow is faster, is because they use c++
       - [losses](#losses)
       - [optimizer](#optimizer)
       - [learning\_rate\_decay](#learning_rate_decay)
+      - [weight\_decay](#weight_decay)
   - [Example program](#example-program)
 
 
@@ -131,6 +133,11 @@ Evaluates the network and send the following data
 
 ---
 
+#### Weight Decay Functions
+* L2 Regularization
+
+---
+
 #### Utility Functions
 
 * Pretty Print Matrix
@@ -161,11 +168,12 @@ Evaluates the network and send the following data
 > filepath: file path of JSON file to use
 > ```
 
-> method compile_network(loss, initializer = None, lrdecayfunc = None)
+> method compile_network(loss, initializer = None, lrdecayfunc = None, WeightDecayFunc = None)
 > ```
 > loss: set loss function
 > initializer: set initializer
 > lrdecayfunc: set decay function for learning rate
+> WeightDecayFunc: set decay function for weights (it increases loss based on how big weights are)
 > ```
 
 > method train(input_values, target_values, epochs, batch_size)
@@ -320,6 +328,12 @@ Evaluates the network and send the following data
 > initial_lr: initial learning rate to start with
 > min_lr: lower bound for the lerning rate
 > total_epoch: this does not need to be filled out
+> ```
+
+#### weight_decay
+> class L2Regularization(Lambda)
+> ```
+> Lambda: affects how much loss to add 
 > ```
 
 ## Example program
