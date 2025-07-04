@@ -193,6 +193,7 @@ Evaluates the network and send the following data
 > ```
 > testinput: input value dataset list
 > testtargetoutput: target value dataset list
+> Metrics: list of metrics to calculate
 > ```
 
 ---
