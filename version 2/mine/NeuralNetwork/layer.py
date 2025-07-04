@@ -1,4 +1,4 @@
-import xp
+import cupy as xp
 from .optimizer import *
 
 class Layer:

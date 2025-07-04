@@ -1,4 +1,4 @@
-import xp
+import cupy as xp
         
 class BinaryCrossEntropy:
     def __init__(self):

@@ -1,5 +1,3 @@
-from .xp import *
-setup()
 from .layer import Layer
 from .network import *
 from .activations import *

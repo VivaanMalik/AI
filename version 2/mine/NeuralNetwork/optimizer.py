@@ -1,4 +1,4 @@
-import xp
+import cupy as xp
 
 class StochasticGradientDescent:
     def __init__(self, learning_rate = 0.01, load_param = None):

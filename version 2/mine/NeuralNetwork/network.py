@@ -2,11 +2,10 @@ import os
 import json
 import random
 import time
-import xp
+import cupy as xp
 from .layer import Layer
 from .activations import FindActivation
 from .optimizer import NesterovAcceleratedGradient, FindOptimizer
-from multiprocessing import Process, set_start_method
 
 class NeuralNetwork():
     def __init__(self):

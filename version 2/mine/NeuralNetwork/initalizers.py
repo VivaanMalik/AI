@@ -1,4 +1,4 @@
-import xp
+import cupy as xp
 
 class Xavier:
     def initialize(self, shape):
