@@ -4,8 +4,11 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <sqlite3.h>
 #include <vector>
+#include <optional>
+#include <cmath> 
+#include <cuda_runtime.h>
+#include "sqlite3/sqlite3.h"
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
@@ -15,8 +18,39 @@ using namespace std;
 // ===============================================================================
 class InitializerBase {
     public:
-    virtual json initialize(vector<int> shape) const = 0;
+    virtual json initialize(vector<int> shape) const;
     virtual ~InitializerBase() {}
+};
+
+// TODO: add the funcs
+
+// ===============================================================================
+
+// Activation
+// ===============================================================================
+class ActivationFuncBase {
+    public:
+    ActivationFuncBase();
+    virtual vector<vector<float>> forward(vector<vector<float>>& pre_activation_values) = 0;
+    virtual vector<vector<float>> backward(vector<vector<float>>& gradient) = 0;
+    virtual ~ActivationFuncBase() {}
+};
+
+class Sigmoid : public ActivationFuncBase {
+public:
+    vector<float> output;
+    float* d_input;
+    float* d_output;
+    int current_size = 0;
+    float* d_grad = nullptr;
+    float* d_backward_result = nullptr;
+    int last_batch_size = 0;
+
+    Sigmoid();
+    ~Sigmoid();
+
+    vector<vector<float>> forward(vector<vector<float>>& pre_activation_values);
+    vector<vector<float>> backward(vector<vector<float>>& gradient);
 };
 
 // TODO: add the funcs
@@ -27,8 +61,8 @@ class InitializerBase {
 // ===============================================================================
 class LossFuncBase {
     public:
-    virtual float forward(vector<float> output, vector<float> target_output) const = 0;
-    virtual vector<float> backward() const = 0;
+    virtual float forward(vector<float> output, vector<float> target_output) const;
+    virtual vector<float> backward() const;
     virtual ~LossFuncBase() {}
 };
 // ===============================================================================
@@ -38,7 +72,7 @@ class LossFuncBase {
 class LearningRateDecayFuncBase {
     public:
     LearningRateDecayFuncBase(float initial_lr);
-    virtual float decay(int timestep) const = 0;
+    virtual float decay(int timestep) const;
     virtual ~LearningRateDecayFuncBase() {}
 };
 // ===============================================================================
@@ -48,7 +82,7 @@ class LearningRateDecayFuncBase {
 class WeightDecayFuncBase {
     public:
     WeightDecayFuncBase(float lambda);
-    virtual float GetAdditionalLoss(vector<vector<float>> weights) const = 0;
+    virtual float GetAdditionalLoss(vector<vector<float>> weights) const;
     virtual ~WeightDecayFuncBase() {}
 };
 // ===============================================================================
@@ -74,7 +108,7 @@ class Network {
     Network(int id);
 
     void add_Layer(Layer layer);
-    void log_work(sqlite3* db_pointer, float created_on);
+    void log_work(sqlite3* db_pointer, chrono::steady_clock::time_point start);
     void the_thing_to_be_done(std::string msg);
 };
 
@@ -85,5 +119,8 @@ optional<json> read_from_sqlite3_db(sqlite3*, int);
 void the_thing_to_be_done(string);
 json keepchecking(int, sqlite3*);
 json ParseAndComputeData(string);
+float GetElapsedTime(chrono::steady_clock::time_point);
+string VectorFLoatToString(vector<float>);
+string Print2DMatrix(vector<vector<float>>);
 
 #endif

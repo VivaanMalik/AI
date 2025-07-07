@@ -6,8 +6,14 @@ json ParseAndComputeData(string description) {
         List of Arbitrary functions by category code
         Activation:     0000    
                 Sigmoid         000
+                        forward         0
+                        backward        1
                 ReLU            001
+                        forward         0
+                        backward        1
                 LeakyReLU       010
+                        forward         0
+                        backward        1
         Intializer:     0001
                 Xavier          000
                 He              001
@@ -19,8 +25,14 @@ json ParseAndComputeData(string description) {
                 cos annealing   011
         Loss:           0100
                 BCE             000
+                        forward         0
+                        backward        1
                 Softmax + CCR   001
+                        forward         0
+                        backward        1
                 MSE             010
+                        forward         0
+                        backward        1
         Optimizer:      0101
                 SGD             000
                 SGDMomentum     001
@@ -32,7 +44,7 @@ json ParseAndComputeData(string description) {
 
         description boilerplate
 
-        0000 000 pointers separated by | or somn
+        00000000 data
     */
     // TODO: everything here
     // sample data
