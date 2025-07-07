@@ -122,5 +122,7 @@ json ParseAndComputeData(string);
 float GetElapsedTime(chrono::steady_clock::time_point);
 string VectorFLoatToString(vector<float>);
 string Print2DMatrix(vector<vector<float>>);
+vector<float> flatten(vector<vector<float>>);
+vector<vector<float>> unflatten(vector<float>, int, int);
 
 #endif

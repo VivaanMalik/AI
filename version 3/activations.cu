@@ -24,11 +24,8 @@ vector<vector<float>> Sigmoid::forward(vector<vector<float>>& pre_activation_val
     int feature_size = pre_activation_values[0].size();
     int total_size = batch_size * feature_size;
 
-    // Flatten the 2D input
     vector<float> flat_input(total_size);
-    for (int i = 0; i < batch_size; ++i)
-        for (int j = 0; j < feature_size; ++j)
-            flat_input[i * feature_size + j] = pre_activation_values[i][j];
+    flat_input = flatten(pre_activation_values);
 
     // Allocate GPU memory if size changed
     if (total_size > current_size) {
@@ -54,12 +51,10 @@ vector<vector<float>> Sigmoid::forward(vector<vector<float>>& pre_activation_val
 
     // Reshape to 2D
     vector<vector<float>> result(batch_size, vector<float>(feature_size));
-    for (int i = 0; i < batch_size; ++i)
-        for (int j = 0; j < feature_size; ++j)
-            result[i][j] = flat_output[i * feature_size + j];
+    result = unflatten(flat_output, batch_size, feature_size);
 
     // Store 1D output for backward()
-    output = std::move(flat_output);
+    output = move(flat_output);
 
     return result;
 }
@@ -92,9 +87,7 @@ vector<vector<float>> Sigmoid::backward(vector<vector<float>>& gradient) {
 
     // Flatten gradient to 1D (2D gay)
     vector<float> flat_grad(total_size);
-    for (int i = 0; i < batch_size; ++i)
-        for (int j = 0; j < output_size; ++j)
-            flat_grad[i * output_size + j] = gradient[i][j];
+    flat_grad = flatten(gradient);
 
     // Copy inputs to device
     cudaMemcpy(d_grad, flat_grad.data(), total_size * sizeof(float), cudaMemcpyHostToDevice);
@@ -112,9 +105,7 @@ vector<vector<float>> Sigmoid::backward(vector<vector<float>>& gradient) {
 
     // Reshape to 2D
     vector<vector<float>> result(batch_size, vector<float>(output_size));
-    for (int i = 0; i < batch_size; ++i)
-        for (int j = 0; j < output_size; ++j)
-            result[i][j] = flat_result[i * output_size + j];
+    result = unflatten(flat_result, batch_size, output_size);
 
     return result;
 }

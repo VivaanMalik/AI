@@ -36,3 +36,21 @@ string Print2DMatrix(vector<vector<float>> result) {
     }
     return actual_out;
 }
+
+vector<float> flatten(vector<vector<float>> input) {
+    int thing1 = input.size();
+    int thing2 = input[0].size();
+    vector<float> flat_input(total_size);
+    for (int i = 0; i < thing1; ++i)
+        for (int j = 0; j < thing2; ++j)
+            flat_input[i * thing2 + j] = input[i][j];
+    return flat_input;
+}
+
+vector<vector<float>> unflatten(vector<float> input, int thing1size, int thing2size) {
+    vector<vector<float>> result(thing1size, vector<float>(thing2size));
+    for (int i = 0; i < thing1size; ++i)
+        for (int j = 0; j < thing2size; ++j)
+            result[i][j] = input[i * thing2size + j];
+    return result;
+}
