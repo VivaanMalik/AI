@@ -31,8 +31,8 @@ class InitializerBase {
 class ActivationFuncBase {
     public:
     ActivationFuncBase();
-    virtual vector<vector<float>> forward(vector<vector<float>>& pre_activation_values) = 0;
-    virtual vector<vector<float>> backward(vector<vector<float>>& gradient) = 0;
+    virtual vector<float> forward(vector<float>& pre_activation_values, int batch_size, int feature_size) = 0;
+    virtual vector<float> backward(vector<float>& gradient, int batch_size, int feature_size) = 0;
     virtual ~ActivationFuncBase() {}
 };
 
@@ -49,8 +49,8 @@ public:
     Sigmoid();
     ~Sigmoid();
 
-    vector<vector<float>> forward(vector<vector<float>>& pre_activation_values);
-    vector<vector<float>> backward(vector<vector<float>>& gradient);
+    vector<float> forward(vector<float>& pre_activation_values, int batch_size, int feature_size);
+    vector<float> backward(vector<float>& gradient, int batch_size, int feature_size);
 };
 
 // TODO: add the funcs
@@ -122,6 +122,7 @@ json ParseAndComputeData(string);
 float GetElapsedTime(chrono::steady_clock::time_point);
 string VectorFLoatToString(vector<float>);
 string Print2DMatrix(vector<vector<float>>);
+string Print1DVector(vector<float>);
 vector<float> flatten(vector<vector<float>>);
 vector<vector<float>> unflatten(vector<float>, int, int);
 

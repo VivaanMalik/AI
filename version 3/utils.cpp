@@ -37,9 +37,25 @@ string Print2DMatrix(vector<vector<float>> result) {
     return actual_out;
 }
 
+string Print1DVector(vector<float> result) {
+    string out = "(";
+    for (int j = 0; j<result.size(); j++) {
+        out+=to_string(result[j]);
+        out+=", ";
+    }
+    if (!out.empty()) {
+        out.pop_back();
+        out.pop_back();
+    }
+    out+=")";
+    out+="\n";
+    return out;
+}
+
 vector<float> flatten(vector<vector<float>> input) {
     int thing1 = input.size();
     int thing2 = input[0].size();
+    int total_size = thing1 * thing2;
     vector<float> flat_input(total_size);
     for (int i = 0; i < thing1; ++i)
         for (int j = 0; j < thing2; ++j)
