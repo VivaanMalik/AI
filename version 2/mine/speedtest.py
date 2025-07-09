@@ -7,15 +7,15 @@ v = cp.array([[0.1, 0.2, 0.3, 0.4],
               [0.1, 0.2, 0.3, 0.4],
               [0.1, 0.2, 0.3, 0.4]])
 
-s = nn.Sigmoid()
+function = nn.Sigmoid()
 
 start_time = time.time()
-result = s.forward(v)
-result = s.backward(v)
+result = function.forward(v)
+result = function.backward(v)
 t = time.time()
 print(t-start_time)
 start_time = time.time()
-result = s.forward(v)
-result = s.backward(v)
+result = function.forward(v)
+result = function.backward(v)
 t = time.time()
 print(t-start_time)

@@ -70,3 +70,12 @@ vector<vector<float>> unflatten(vector<float> input, int thing1size, int thing2s
             result[i][j] = input[i * thing2size + j];
     return result;
 }
+
+vector<float> to_cpu(const float* device_ptr, size_t count) {
+    vector<float> host_vector(count);
+    cudaError_t err = cudaMemcpy(host_vector.data(), device_ptr, count * sizeof(float), cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+        throw runtime_error(cudaGetErrorString(err));
+    }
+    return host_vector;
+}

@@ -31,14 +31,13 @@ class InitializerBase {
 class ActivationFuncBase {
     public:
     ActivationFuncBase();
-    virtual vector<float> forward(vector<float>& pre_activation_values, int batch_size, int feature_size) = 0;
-    virtual vector<float> backward(vector<float>& gradient, int batch_size, int feature_size) = 0;
+    virtual float* forward(vector<float>& pre_activation_values, int batch_size, int feature_size) = 0;
+    virtual float* backward(vector<float>& gradient, int batch_size, int feature_size) = 0;
     virtual ~ActivationFuncBase() {}
 };
 
 class Sigmoid : public ActivationFuncBase {
 public:
-    vector<float> output;
     float* d_input;
     float* d_output;
     int current_size = 0;
@@ -49,8 +48,24 @@ public:
     Sigmoid();
     ~Sigmoid();
 
-    vector<float> forward(vector<float>& pre_activation_values, int batch_size, int feature_size);
-    vector<float> backward(vector<float>& gradient, int batch_size, int feature_size);
+    float* forward(vector<float>& pre_activation_values, int batch_size, int feature_size);
+    float* backward(vector<float>& gradient, int batch_size, int feature_size);
+};
+
+class ReLU : public ActivationFuncBase {
+public:
+    float* d_input;
+    float* d_output;
+    int current_size = 0;
+    float* d_grad = nullptr;
+    float* d_backward_result = nullptr;
+    int last_batch_size = 0;
+
+    ReLU();
+    ~ReLU();
+
+    float* forward(vector<float>& pre_activation_values, int batch_size, int feature_size);
+    float* backward(vector<float>& gradient, int batch_size, int feature_size);
 };
 
 // TODO: add the funcs
@@ -125,5 +140,6 @@ string Print2DMatrix(vector<vector<float>>);
 string Print1DVector(vector<float>);
 vector<float> flatten(vector<vector<float>>);
 vector<vector<float>> unflatten(vector<float>, int, int);
+vector<float> to_cpu(const float*, size_t);
 
 #endif

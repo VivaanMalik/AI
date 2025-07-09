@@ -32,7 +32,7 @@ void Network::log_work(sqlite3* db_pointer, chrono::steady_clock::time_point sta
 }
 
 void Network::the_thing_to_be_done(string msg) {
-    Sigmoid s;
+    Sigmoid function;
     vector<float> v = { 0.1f, 0.2f, 0.3f, 0.4f,
                         0.1f, 0.2f, 0.3f, 0.4f,
                         0.1f, 0.2f, 0.3f, 0.4f,
@@ -41,19 +41,19 @@ void Network::the_thing_to_be_done(string msg) {
     int feature_size = 4; // horizontal
     int total_size = batch_size * feature_size;
     
-    vector<float> result(total_size);
+    float* result_pointer;
 
-    result = s.forward(v, batch_size, feature_size);
-    string actual_out = Print2DMatrix(unflatten(result, batch_size, feature_size));
+    result_pointer = function.forward(v, batch_size, feature_size);
+    string actual_out = Print2DMatrix(unflatten(to_cpu(result_pointer, total_size), batch_size, feature_size));
     cout <<  msg + "\n" + actual_out + "\n";
 
-    result = s.backward(v, batch_size, feature_size);
-    actual_out = Print2DMatrix(unflatten(result, batch_size, feature_size));
+    result_pointer = function.backward(v, batch_size, feature_size);
+    actual_out = Print2DMatrix(unflatten(to_cpu(result_pointer, total_size), batch_size, feature_size));
     cout <<  msg + "\n" + actual_out + "\n";
 
     chrono::steady_clock::time_point start = chrono::steady_clock::now();
-    result = s.forward(v, batch_size, feature_size);
-    result = s.backward(v, batch_size, feature_size);
+    result_pointer = function.forward(v, batch_size, feature_size);
+    result_pointer = function.backward(v, batch_size, feature_size);
     float elapsed_time = GetElapsedTime(start);
     
     cout << "OUTPUT TIME: " + to_string(elapsed_time) + "\n";
