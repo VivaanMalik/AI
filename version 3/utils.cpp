@@ -79,3 +79,10 @@ vector<float> to_cpu(const float* device_ptr, size_t count) {
     }
     return host_vector;
 }
+
+float* to_gpu(const vector<float>& data) {
+    float* d_data;
+    cudaMalloc(&d_data, data.size() * sizeof(float));
+    cudaMemcpy(d_data, data.data(), data.size() * sizeof(float), cudaMemcpyHostToDevice);
+    return d_data;
+}
