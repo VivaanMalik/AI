@@ -25,6 +25,8 @@ class InitializerBase {
 
 class Xavier : public InitializerBase {
 public:
+    float* d_weights;
+    
     Xavier();
     ~Xavier();
     
