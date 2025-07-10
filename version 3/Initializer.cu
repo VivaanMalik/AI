@@ -7,7 +7,7 @@ InitializerBase::InitializerBase() {}
 
 __global__ void setup_kernel(curandState *state, unsigned long seed) {
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    curand_init(seed, idx, 0, &state[idx]);
+    curand_init(seed, idx, idx, &state[idx]);
 }
 
 XavierNormal::XavierNormal(): d_weights(nullptr) {}
@@ -31,11 +31,18 @@ float* XavierNormal::initialize(int shape_0, int shape_1) {
     // set random
     curandState *d_state;
     cudaMalloc(&d_state, total_size * sizeof(curandState));
+    cudaMemset(d_weights, 0, total_size * sizeof(float));
+    cudaMemset(d_state, 0, total_size * sizeof(curandState));
+
+    auto now = std::chrono::high_resolution_clock::now();
+    auto seed = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
 
     int threads_per_block = 256;
     int num_blocks = (total_size + threads_per_block - 1) / threads_per_block;
-    setup_kernel<<<num_blocks, threads_per_block>>>(d_state, time(NULL));
+    setup_kernel<<<num_blocks, threads_per_block>>>(d_state, seed);
+    cudaDeviceSynchronize();
     xavier_normal_initialize<<<num_blocks, threads_per_block>>>(d_state, d_weights, multiplier, total_size);
+    cudaDeviceSynchronize();
 
     cudaFree(d_state);
 
@@ -65,11 +72,18 @@ float* XavierUniform::initialize(int shape_0, int shape_1) {
     // set random
     curandState *d_state;
     cudaMalloc(&d_state, total_size * sizeof(curandState));
+    cudaMemset(d_weights, 0, total_size * sizeof(float));
+    cudaMemset(d_state, 0, total_size * sizeof(curandState));
+
+    auto now = std::chrono::high_resolution_clock::now();
+    auto seed = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
 
     int threads_per_block = 256;
     int num_blocks = (total_size + threads_per_block - 1) / threads_per_block;
-    setup_kernel<<<num_blocks, threads_per_block>>>(d_state, time(NULL));
+    setup_kernel<<<num_blocks, threads_per_block>>>(d_state, seed);
+    cudaDeviceSynchronize();
     xavier_uniform_initialize<<<num_blocks, threads_per_block>>>(d_state, d_weights, multiplier, total_size);
+    cudaDeviceSynchronize();
 
     cudaFree(d_state);
 
@@ -99,11 +113,18 @@ float* HeUniform::initialize(int shape_0, int shape_1) {
     // set random
     curandState *d_state;
     cudaMalloc(&d_state, total_size * sizeof(curandState));
+    cudaMemset(d_weights, 0, total_size * sizeof(float));
+    cudaMemset(d_state, 0, total_size * sizeof(curandState));
+
+    auto now = std::chrono::high_resolution_clock::now();
+    auto seed = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
 
     int threads_per_block = 256;
     int num_blocks = (total_size + threads_per_block - 1) / threads_per_block;
-    setup_kernel<<<num_blocks, threads_per_block>>>(d_state, time(NULL));
+    setup_kernel<<<num_blocks, threads_per_block>>>(d_state, seed);
+    cudaDeviceSynchronize();
     he_uniform_initialize<<<num_blocks, threads_per_block>>>(d_state, d_weights, multiplier, total_size);
+    cudaDeviceSynchronize();
 
     cudaFree(d_state);
 
@@ -133,11 +154,18 @@ float* HeNormal::initialize(int shape_0, int shape_1) {
     // set random
     curandState *d_state;
     cudaMalloc(&d_state, total_size * sizeof(curandState));
+    cudaMemset(d_weights, 0, total_size * sizeof(float));
+    cudaMemset(d_state, 0, total_size * sizeof(curandState));
+
+    auto now = std::chrono::high_resolution_clock::now();
+    auto seed = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
 
     int threads_per_block = 256;
     int num_blocks = (total_size + threads_per_block - 1) / threads_per_block;
-    setup_kernel<<<num_blocks, threads_per_block>>>(d_state, time(NULL));
+    setup_kernel<<<num_blocks, threads_per_block>>>(d_state, seed);
+    cudaDeviceSynchronize();
     he_normal_initialize<<<num_blocks, threads_per_block>>>(d_state, d_weights, multiplier, total_size);
+    cudaDeviceSynchronize();
 
     cudaFree(d_state);
 

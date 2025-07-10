@@ -7,7 +7,7 @@ Network::Network(int id) :
     LossFunction(nullptr),
     LearningRateDecayFunction(nullptr),
     EpochNumber(0),
-    WeightDecayFunction(nullptr) {}
+    RegularizationFunction(nullptr) {}
 
 void Network::add_Layer(Layer layer) {
     this->Layers.push_back(layer);

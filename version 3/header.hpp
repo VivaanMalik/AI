@@ -81,6 +81,20 @@ public:
     float* backward(float* gradient, int batch_size, int feature_size);
 };
 
+class Tanh : public ActivationFuncBase {
+public:
+    float* d_output;
+    int current_size = 0;
+    float* d_backward_result = nullptr;
+    int last_batch_size = 0;
+
+    Tanh();
+    ~Tanh();
+
+    float* forward(float* pre_activation_values, int batch_size, int feature_size);
+    float* backward(float* gradient, int batch_size, int feature_size);
+};
+
 class ReLU : public ActivationFuncBase {
 public:
     float* d_output;
@@ -110,9 +124,6 @@ public:
     float* backward(float* gradient, int batch_size, int feature_size);
 };
 
-
-// TODO: add the funcs
-
 // ===============================================================================
 
 // Loss func
@@ -137,11 +148,41 @@ class LearningRateDecayFuncBase {
 
 // weight decay func (add loss)
 // ===============================================================================
-class WeightDecayFuncBase {
+class RegularizationFuncBase {
     public:
-    WeightDecayFuncBase(float lambda);
-    virtual float GetAdditionalLoss(vector<vector<float>> weights) const;
-    virtual ~WeightDecayFuncBase() {}
+    float lambda;
+    explicit RegularizationFuncBase(float lambda);
+    virtual void UpdateLoss(float* d_weights, float* d_loss, int weight_size) = 0;
+    virtual void UpdateGradient(float* d_weights, float* d_grad, int weight_size) = 0;
+    virtual ~RegularizationFuncBase() {}
+};
+
+class L1Regularization : public RegularizationFuncBase {
+public:
+    explicit L1Regularization(float lambda_value = 1e-4);
+    ~L1Regularization();
+    void UpdateLoss(float* d_weights, float* d_loss, int weight_size);
+    void UpdateGradient(float* d_weights, float* d_grad, int weight_size);
+};
+
+class L2Regularization : public RegularizationFuncBase {
+public:
+    explicit L2Regularization(float lambda_value = 1e-4);
+    ~L2Regularization();
+    void UpdateLoss(float* d_weights, float* d_loss, int weight_size);
+    void UpdateGradient(float* d_weights, float* d_grad, int weight_size);
+};
+
+class ElasticNet : public RegularizationFuncBase {
+public:
+    L1Regularization l1reg;
+    L2Regularization l2reg;
+
+    explicit ElasticNet(float lambda_value = 1e-4);
+    ~ElasticNet();
+
+    void UpdateLoss(float* d_weights, float* d_loss, int weight_size);
+    void UpdateGradient(float* d_weights, float* d_grad, int weight_size);
 };
 // ===============================================================================
 
@@ -162,7 +203,7 @@ class Network {
     LossFuncBase* LossFunction;
     LearningRateDecayFuncBase* LearningRateDecayFunction;
     int EpochNumber;
-    WeightDecayFuncBase* WeightDecayFunction;    
+    RegularizationFuncBase* RegularizationFunction;    
     Network(int id);
 
     void add_Layer(Layer layer);
