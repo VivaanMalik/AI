@@ -19,7 +19,8 @@ void Network::log_work(sqlite3* db_pointer, chrono::steady_clock::time_point sta
     write_to_sqlite3_db(db_pointer, values);
     json result = keepchecking(id, db_pointer);
 
-    this->the_thing_to_be_done(result["name"]);
+    // this->test_activation_function(result["name"]);
+    this->test_initializer();
 
     // float created_on = GetElapsedTime(start);
     // string pre_activation_values_as_str = VectorFLoatToString(pre_activation_values);
@@ -31,7 +32,9 @@ void Network::log_work(sqlite3* db_pointer, chrono::steady_clock::time_point sta
     // return this->output;
 }
 
-void Network::the_thing_to_be_done(string msg) {
+void Network::test_activation_function(string msg) {
+    // Sigmoid function;
+    // ReLU function;
     LeakyReLU function;
     vector<float> v = { 0.1f, 0.2f, 0.3f, 0.4f,
                         0.1f, 0.2f, 0.3f, 0.4f,
@@ -56,6 +59,27 @@ void Network::the_thing_to_be_done(string msg) {
     chrono::steady_clock::time_point start = chrono::steady_clock::now();
     result_pointer = function.forward(d_v, batch_size, feature_size);
     result_pointer = function.backward(d_v, batch_size, feature_size);
+    float elapsed_time = GetElapsedTime(start);
+    
+    cout << "OUTPUT TIME: " + to_string(elapsed_time) + "\n";
+}
+
+void Network::test_initializer() {
+    // HeUniform function;
+    // XavierNormal function;
+    // XavierUniform function;
+    HeNormal function;
+
+    int shape_0 = 4;
+    int shape_1 = 8;
+    float* d_weights;
+    d_weights = function.initialize(shape_0, shape_1);
+    vector<float> weights_vec = to_cpu(d_weights, shape_0*shape_1);
+    string actual_out = Print2DMatrix(unflatten(weights_vec, shape_0, shape_1));
+    cout << actual_out + "\n";
+
+    chrono::steady_clock::time_point start = chrono::steady_clock::now();
+    d_weights = function.initialize(shape_0, shape_1);
     float elapsed_time = GetElapsedTime(start);
     
     cout << "OUTPUT TIME: " + to_string(elapsed_time) + "\n";

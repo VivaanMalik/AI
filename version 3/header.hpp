@@ -23,16 +23,37 @@ class InitializerBase {
     virtual ~InitializerBase() {}
 };
 
-class Xavier : public InitializerBase {
+class XavierNormal : public InitializerBase {
 public:
     float* d_weights;
-    
-    Xavier();
-    ~Xavier();
-    
+    XavierNormal();
+    ~XavierNormal();
     float* initialize(int batch_size, int feature_size);
 };
 
+class XavierUniform : public InitializerBase {
+public:
+    float* d_weights;
+    XavierUniform();
+    ~XavierUniform();
+    float* initialize(int batch_size, int feature_size);
+};
+
+class HeUniform : public InitializerBase {
+public:
+    float* d_weights;
+    HeUniform();
+    ~HeUniform();
+    float* initialize(int batch_size, int feature_size);
+};
+
+class HeNormal : public InitializerBase {
+public:
+    float* d_weights;
+    HeNormal();
+    ~HeNormal();
+    float* initialize(int batch_size, int feature_size);
+};
 
 // ===============================================================================
 
@@ -146,22 +167,26 @@ class Network {
 
     void add_Layer(Layer layer);
     void log_work(sqlite3* db_pointer, chrono::steady_clock::time_point start);
-    void the_thing_to_be_done(std::string msg);
+    void test_activation_function(std::string msg);
+    void test_initializer();
 };
 
 sqlite3* setup_sqlite3_db();
 void close_sqlite3_db(sqlite3*);
 bool write_to_sqlite3_db(sqlite3*, string);
 optional<json> read_from_sqlite3_db(sqlite3*, int);
-void the_thing_to_be_done(string);
+
 json keepchecking(int, sqlite3*);
 json ParseAndComputeData(string);
 float GetElapsedTime(chrono::steady_clock::time_point);
 string VectorFLoatToString(vector<float>);
+
 string Print2DMatrix(vector<vector<float>>);
 string Print1DVector(vector<float>);
+
 vector<float> flatten(vector<vector<float>>);
 vector<vector<float>> unflatten(vector<float>, int, int);
+
 vector<float> to_cpu(const float*, size_t);
 float* to_gpu(const vector<float>&);
 

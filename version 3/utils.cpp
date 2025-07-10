@@ -23,6 +23,9 @@ string Print2DMatrix(vector<vector<float>> result) {
     for (int i = 0; i<result.size(); i++) {
         string out = "(";
         for (int j = 0; j<result[i].size(); j++) {
+            if (result[i][j]>0) {
+                out+="+";
+            }
             out+=to_string(result[i][j]);
             out+=", ";
         }
@@ -40,6 +43,9 @@ string Print2DMatrix(vector<vector<float>> result) {
 string Print1DVector(vector<float> result) {
     string out = "(";
     for (int j = 0; j<result.size(); j++) {
+        if (result[j]>0) {
+            out+="+";
+        }
         out+=to_string(result[j]);
         out+=", ";
     }
