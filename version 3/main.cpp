@@ -1,31 +1,49 @@
 #include "header.hpp"
+#include <process.h>
 
-// nvcc -o executable .\main.cpp .\SQLiteManager.cpp .\thread.cpp .\Parser.cpp .\Layer.cpp .\activations.cu .\Initializer.cu .\utils.cpp -lsqlite
+int main(int argc, char* argv[]) {
+    if (argc > 1) {
+        // This is a spawned process
+        int id = stoi(argv[1]);
+        chrono::steady_clock::time_point start = chrono::steady_clock::now();
 
-int main(){
-    int num_of_threads = 8;
+        Network net(id);
+        net.log_work(start);
 
-    sqlite3* db_pointer = setup_sqlite3_db();
+    } 
+    else {
+        // This is the master process
+        const int num_processes = 8;
+        vector<int> pids;
 
-    chrono::steady_clock::time_point start = chrono::steady_clock::now();
+        for (int i = 0; i < num_processes; ++i) {
+            string id_str = to_string(i);
 
-    vector<thread> threads;
-    vector<Network> Networks;
+            int result = _spawnl(
+                _P_NOWAIT,            // Do not wait
+                "build\\executable.exe",     // Path to your compiled exe
+                "executable.exe",     // argv[0]
+                id_str.c_str(),       // argv[1]
+                nullptr               // End
+            );
 
-    for (int i = 0; i<num_of_threads; i++) {
-        Networks.emplace_back(i);
+            if (result == -1) {
+                cerr << "Failed to launch process " << i << "\n";
+            }
+            else {
+                pids.push_back(result);
+            }
+        }
 
-        float elapsed_time = GetElapsedTime(start);
+        cout << "Spawned all processes.\n";
 
-        threads.emplace_back([&, i, elapsed_time]() {
-            Networks[i].log_work(db_pointer, start);
-        });
+        for (int pid : pids) {
+            _cwait(nullptr, pid, 0);
+        }
+
+        cout << "All child processes finished.\n";
     }
 
-    for (auto& t : threads) {
-        t.join();
-    }
-
-    close_sqlite3_db(db_pointer);
     return 0;
+
 }

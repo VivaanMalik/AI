@@ -8,10 +8,8 @@
 #include <optional>
 #include <cmath> 
 #include <cuda_runtime.h>
-#include "sqlite3/sqlite3.h"
-#include "nlohmann/json.hpp"
+#include <chrono>
 
-using json = nlohmann::json;
 using namespace std;
 
 // Initializer
@@ -207,18 +205,11 @@ class Network {
     Network(int id);
 
     void add_Layer(Layer layer);
-    void log_work(sqlite3* db_pointer, chrono::steady_clock::time_point start);
-    void test_activation_function(std::string msg);
+    void log_work(chrono::steady_clock::time_point start);
+    void test_activation_function();
     void test_initializer();
 };
 
-sqlite3* setup_sqlite3_db();
-void close_sqlite3_db(sqlite3*);
-bool write_to_sqlite3_db(sqlite3*, string);
-optional<json> read_from_sqlite3_db(sqlite3*, int);
-
-json keepchecking(int, sqlite3*);
-json ParseAndComputeData(string);
 float GetElapsedTime(chrono::steady_clock::time_point);
 string VectorFLoatToString(vector<float>);
 

@@ -4,10 +4,18 @@
 
 InitializerBase::InitializerBase() {}
 
-
 __global__ void setup_kernel(curandState *state, unsigned long seed) {
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
     curand_init(seed, idx, idx, &state[idx]);
+}
+
+__global__ void check_rng(curandState* state, int size) {
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < size) {
+        float r1 = curand_uniform(&state[idx]);
+        float r2 = curand_normal(&state[idx]);
+        printf("Thread %d → uniform: %f, normal: %f\n", idx, r1, r2);
+    }
 }
 
 XavierNormal::XavierNormal(): d_weights(nullptr) {}
@@ -34,8 +42,8 @@ float* XavierNormal::initialize(int shape_0, int shape_1) {
     cudaMemset(d_weights, 0, total_size * sizeof(float));
     cudaMemset(d_state, 0, total_size * sizeof(curandState));
 
-    auto now = std::chrono::high_resolution_clock::now();
-    auto seed = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
+    auto now = chrono::high_resolution_clock::now();
+    auto seed = chrono::duration_cast<chrono::microseconds>(now.time_since_epoch()).count();
 
     int threads_per_block = 256;
     int num_blocks = (total_size + threads_per_block - 1) / threads_per_block;
