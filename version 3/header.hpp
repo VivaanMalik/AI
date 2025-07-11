@@ -9,6 +9,9 @@
 #include <cmath> 
 #include <cuda_runtime.h>
 #include <chrono>
+#include <algorithm>
+
+#define M_PI 3.14159265358979323846
 
 using namespace std;
 
@@ -128,8 +131,8 @@ public:
 // ===============================================================================
 class LossFuncBase {
     public:
-    virtual float forward(vector<float> output, vector<float> target_output) const;
-    virtual vector<float> backward() const;
+    virtual float forward(vector<float> output, vector<float> target_output) = 0;
+    virtual vector<float> backward() = 0;
     virtual ~LossFuncBase() {}
 };
 // ===============================================================================
@@ -138,9 +141,46 @@ class LossFuncBase {
 // ===============================================================================
 class LearningRateDecayFuncBase {
     public:
-    LearningRateDecayFuncBase(float initial_lr);
-    virtual float decay(int timestep) const;
+    float initial_lr;
+    float min_lr;
+    int total_epoch;
+
+    LearningRateDecayFuncBase(float initial_lr, float min_lr, int total_epoch = 0);
+    virtual float decay(int timestep) = 0;
     virtual ~LearningRateDecayFuncBase() {}
+};
+
+class StepDecay : public LearningRateDecayFuncBase {
+    public:
+    int decay_step_size;
+    float decay_factor;
+
+    StepDecay(float initial_lr, float min_lr, int decay_step_size, float decay_factor = 0.5f);
+    void setDecayConstants(int dss, float df = 0.5f);
+    float decay(int timestep) override;
+};
+
+class ExponentialDecay : public LearningRateDecayFuncBase {
+    public:
+    float decay_constant;
+
+    ExponentialDecay(float initial_lr, float min_lr, float decay_constant = 0.01f);
+    void setDecayConstant(float dc);
+    float decay(int timestep) override;
+};
+
+class LinearDecay : public LearningRateDecayFuncBase {
+    public:
+    LinearDecay(float initial_lr, float min_lr, int total_epoch = 0);
+    void setTotalEpoch(int T);
+    float decay(int timestep);
+};
+
+class CosineAnnealing : public LearningRateDecayFuncBase {
+    public:
+    CosineAnnealing(float initial_lr, float min_lr, int total_epoch = 0);
+    void setTotalEpoch(int T);
+    float decay(int timestep);
 };
 // ===============================================================================
 
