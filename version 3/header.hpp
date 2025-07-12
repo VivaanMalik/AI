@@ -131,9 +131,61 @@ public:
 // ===============================================================================
 class LossFuncBase {
     public:
-    virtual float forward(vector<float> output, vector<float> target_output) = 0;
-    virtual vector<float> backward() = 0;
+    LossFuncBase();
+    virtual float forward(float* output, float* target_output, int batch_size, int num_classes) = 0;
+    virtual float* backward() = 0;
     virtual ~LossFuncBase() {}
+};
+
+class BinaryCrossEntropy : public LossFuncBase {
+    public: 
+    float* predicted;
+    float* target;
+    int outsize;
+    int current_size;
+    float* d_loss;
+    float* grad;
+
+    BinaryCrossEntropy();
+    ~BinaryCrossEntropy();
+
+    float epsilon;
+    float forward(float* output, float* target_output, int batch_size, int num_classes);
+    float* backward();
+};
+
+class SoftmaxCategoricalCrossEntropy : public LossFuncBase {
+    public: 
+    float* probabilities;
+    float* target;
+    int batchsize;
+    int numclasses;
+    int current_size;
+    float* d_loss;
+    float* grad;
+
+    SoftmaxCategoricalCrossEntropy();
+    ~SoftmaxCategoricalCrossEntropy();
+
+    float epsilon;
+    float forward(float* output, float* target_output, int batch_size, int num_classes);
+    float* backward();
+};
+
+class MeanSquaredLoss : public LossFuncBase {
+    public: 
+    float* predicted;
+    float* target;
+    int outsize;
+    int current_size;
+    float* d_loss;
+    float* grad;
+
+    MeanSquaredLoss();
+    ~MeanSquaredLoss();
+
+    float forward(float* output, float* target_output, int batch_size, int num_classes);
+    float* backward();
 };
 // ===============================================================================
 

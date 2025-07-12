@@ -2,6 +2,8 @@
 
 ActivationFuncBase::ActivationFuncBase() {}
 
+// softamax found in loss
+
 Sigmoid::Sigmoid() : d_output(nullptr), d_backward_result(nullptr), current_size(0) {}
 Sigmoid::~Sigmoid() {
     if (d_output) cudaFree(d_output);
