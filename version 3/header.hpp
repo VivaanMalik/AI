@@ -276,14 +276,38 @@ public:
 };
 // ===============================================================================
 
+// Optimizer
+// ===============================================================================
+class OptimizingFuncBase {
+    public:
+};
+// ===============================================================================
+
 // Layer
 // ===============================================================================
 class Layer {
     public: 
+    int ID; // mostly for debugging
+    int BatchSize; // 
+    int PrevNodeCount;
+    int NodeCount;
+    InitializerBase* InitializationFunctionClass;
+    ActivationFuncBase* ActivationFunctionClass;
+    OptimizingFuncBase* OptimizerFunctionClass;
+    float* input;
+    float* PostActivationValues;
+    float ProbabilityDropout = 0.0f;
+    float* dropout_mask;
+    float* weights;
+    float* biases;
+    float* dW;
+    float* dB;
 
+    Layer(int id, int prev_node_count, int node_count, InitializerBase* initialization_function, ActivationFuncBase* activation_function, OptimizingFuncBase* optimizer_function, float probability_dropout); // Primary assign: id and shit
+    void initialize(int batch_size); // Secondary assign: weights and biases
+    ~Layer();
 };
 // ===============================================================================
-
 
 class Network {
     public:
