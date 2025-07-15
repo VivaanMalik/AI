@@ -10,6 +10,9 @@
 #include <cuda_runtime.h>
 #include <chrono>
 #include <algorithm>
+#include <curand.h>
+#include <curand_kernel.h>
+
 
 #define M_PI 3.14159265358979323846
 
@@ -291,20 +294,24 @@ class Layer {
     int BatchSize; // 
     int PrevNodeCount;
     int NodeCount;
+    int input_size;
+    int output_size;
     InitializerBase* InitializationFunctionClass;
     ActivationFuncBase* ActivationFunctionClass;
     OptimizingFuncBase* OptimizerFunctionClass;
     float* input;
-    float* PostActivationValues;
+    float* OutputValues;
     float ProbabilityDropout = 0.0f;
     float* dropout_mask;
     float* weights;
     float* biases;
     float* dW;
     float* dB;
+    curandState *d_state;
 
     Layer(int id, int prev_node_count, int node_count, InitializerBase* initialization_function, ActivationFuncBase* activation_function, OptimizingFuncBase* optimizer_function, float probability_dropout); // Primary assign: id and shit
     void initialize(int batch_size); // Secondary assign: weights and biases
+    void forward(float* inputvals);
     ~Layer();
 };
 // ===============================================================================
