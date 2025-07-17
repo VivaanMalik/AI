@@ -80,7 +80,7 @@ __global__ void dropout_kernel(float* values, float* mask, float prob, int outpu
     }
 }
 
-void Layer::forward(float* inputvals) {
+float* Layer::forward(float* inputvals) {
     input = inputvals;
 
     dim3 threadsPerBlock(16, 16);
@@ -104,6 +104,7 @@ void Layer::forward(float* inputvals) {
 
         dropout_kernel<<<blocks, threads>>>(OutputValues, dropout_mask, ProbabilityDropout, output_size, d_state);
     }
+    return OutputValues;
 }
 
 __global__ void adjust_grad_kernel(float* values, float* mask, float prob, int output_size) {

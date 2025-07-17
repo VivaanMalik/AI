@@ -17,10 +17,10 @@ __global__ void bce_loss_kernel(const float* y_pred, const float* y_true, float*
     if (idx < total_elements) {
         float y = y_true[idx];
         float p = fminf(fmaxf(y_pred[idx], epsilon), 1.0f - epsilon); 
-        atomicAdd(d_loss,- (y * logf(p) + (1.0f - y) * logf(1.0f - p)));
+        atomicAdd(d_loss,(-(y * logf(p) + (1.0f - y) * logf(1.0f - p)))/total_elements);
     }
 }
-float BinaryCrossEntropy::forward(float* d_pred, float* d_target, int batch_size, int num_classes) {
+float* BinaryCrossEntropy::forward(float* d_pred, float* d_target, int batch_size, int num_classes) {
     int output_size = batch_size * num_classes; 
 
     // Allocate GPU memory if size changed
@@ -45,9 +45,7 @@ float BinaryCrossEntropy::forward(float* d_pred, float* d_target, int batch_size
     bce_loss_kernel<<<num_blocks, threads_per_block>>>(predicted, target, d_loss, output_size, epsilon);
     // cudaDeviceSynchronize();
 
-    float h_loss;
-    cudaMemcpy(&h_loss, d_loss, sizeof(float), cudaMemcpyDeviceToHost);
-    return h_loss/output_size;
+    return d_loss;
 }
 __global__ void bce_loss_backward_kernel(float* y_pred, float* y_true, float* grad, int total_elements, float epsilon) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -102,10 +100,10 @@ __global__ void cce_loss_kernel(float* y_pred, float* y_true, float* probabiliti
         for (int j = 0; j < num_classes; ++j)
             loss_i -= target_row[j] * logf(fmaxf(prob_row[j], epsilon));
 
-        atomicAdd(d_loss, loss_i);
-        }
+        atomicAdd(d_loss, loss_i/num_classes);
+    }
 }
-float SoftmaxCategoricalCrossEntropy::forward(float* d_pred, float* d_target, int batch_size, int num_classes) {
+float* SoftmaxCategoricalCrossEntropy::forward(float* d_pred, float* d_target, int batch_size, int num_classes) {
     // Allocate GPU memory if size changed
     int output_size = batch_size * num_classes;
     if (output_size > current_size) {
@@ -129,9 +127,7 @@ float SoftmaxCategoricalCrossEntropy::forward(float* d_pred, float* d_target, in
     cce_loss_kernel<<<num_blocks, threads_per_block>>>(d_pred, target, probabilities, d_loss, batch_size, num_classes, epsilon);
     // cudaDeviceSynchronize();
 
-    float h_loss;
-    cudaMemcpy(&h_loss, d_loss, sizeof(float), cudaMemcpyDeviceToHost);
-    return h_loss/batch_size;
+    return d_loss;
 }
 __global__ void cce_loss_backward_kernel(float* probabilities, float* y_true, float* grad, int batch_size, int num_classes) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -161,10 +157,10 @@ __global__ void mse_loss_kernel(const float* y_pred, const float* y_true, float*
     if (idx < total_elements) {
         float y = y_true[idx];
         float p = y_pred[idx]; 
-        atomicAdd(d_loss, (p-y) * (p-y));
+        atomicAdd(d_loss, ((p-y) * (p-y))/output_size);
     }
 }
-float MeanSquaredLoss::forward(float* d_pred, float* d_target, int batch_size, int num_classes) {
+float* MeanSquaredLoss::forward(float* d_pred, float* d_target, int batch_size, int num_classes) {
     int output_size = batch_size * num_classes; 
 
     // Allocate GPU memory if size changed
@@ -189,9 +185,7 @@ float MeanSquaredLoss::forward(float* d_pred, float* d_target, int batch_size, i
     mse_loss_kernel<<<num_blocks, threads_per_block>>>(predicted, target, d_loss, output_size);
     // cudaDeviceSynchronize();
 
-    float h_loss;
-    cudaMemcpy(&h_loss, d_loss, sizeof(float), cudaMemcpyDeviceToHost);
-    return h_loss/output_size;
+    float d_loss;
 }
 __global__ void mse_loss_backward_kernel(float* y_pred, float* y_true, float* grad, int total_elements) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;

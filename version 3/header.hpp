@@ -153,7 +153,7 @@ class BinaryCrossEntropy : public LossFuncBase {
     ~BinaryCrossEntropy();
 
     float epsilon;
-    float forward(float* output, float* target_output, int batch_size, int num_classes);
+    float* forward(float* output, float* target_output, int batch_size, int num_classes);
     float* backward();
 };
 
@@ -171,7 +171,7 @@ class SoftmaxCategoricalCrossEntropy : public LossFuncBase {
     ~SoftmaxCategoricalCrossEntropy();
 
     float epsilon;
-    float forward(float* output, float* target_output, int batch_size, int num_classes);
+    float* forward(float* output, float* target_output, int batch_size, int num_classes);
     float* backward();
 };
 
@@ -187,7 +187,7 @@ class MeanSquaredLoss : public LossFuncBase {
     MeanSquaredLoss();
     ~MeanSquaredLoss();
 
-    float forward(float* output, float* target_output, int batch_size, int num_classes);
+    float* forward(float* output, float* target_output, int batch_size, int num_classes);
     float* backward();
 };
 // ===============================================================================
@@ -283,7 +283,21 @@ public:
 // ===============================================================================
 class OptimizingFuncBase {
     public:
-    virtual void step(float* weights, float* biases, float* dW, float* dB) = 0;
+    // OptimizingFuncBase();
+    virtual void step(float* weights, float* biases, float* dW, float* dB, int PrevNodeCount, int NodeCount) = 0;
+    virtual void SetNewLR(float NewLR) = 0;
+    virtual ~OptimizingFuncBase() {}
+};
+
+class StochasticGradientDescent : public OptimizingFuncBase {
+    public: 
+    float lr;
+
+    StochasticGradientDescent(float LR);
+    ~StochasticGradientDescent();
+
+    void step(float* weights, float* biases, float* dW, float* dB, int PrevNodeCount, int NodeCount);
+    void SetNewLR(float NewLR);
 };
 // ===============================================================================
 
@@ -313,7 +327,7 @@ class Layer {
 
     Layer(int id, int prev_node_count, int node_count, InitializerBase* initialization_function, ActivationFuncBase* activation_function, OptimizingFuncBase* optimizer_function, float probability_dropout); // Primary assign: id and shit
     void initialize(int batch_size); // Secondary assign: weights and biases
-    void forward(float* inputvals);
+    float* forward(float* inputvals);
     float* backward(float* grad_output);
     ~Layer();
 };
@@ -322,15 +336,18 @@ class Layer {
 class Network {
     public:
     int id;
+    int BatchSize;
+    int EpochNumber;
     vector<Layer> Layers;
-    InitializerBase* Initializer;
     LossFuncBase* LossFunction;
     LearningRateDecayFuncBase* LearningRateDecayFunction;
-    int EpochNumber;
     RegularizationFuncBase* RegularizationFunction;    
     Network(int id);
 
     void add_Layer(Layer layer);
+    void compile_network(LossFuncBase* loss_func, LearningRateDecayFuncBase* Lrd_func, RegularizationFuncBase* reg_func, int batch_size);
+    float* forward(float* x);
+
     void log_work(chrono::steady_clock::time_point start);
     void test_activation_function();
     void test_initializer();
@@ -347,5 +364,7 @@ vector<vector<float>> unflatten(vector<float>, int, int);
 
 vector<float> to_cpu(const float*, size_t);
 float* to_gpu(const vector<float>&);
+
+float round_to_sigfigs(float num, int n);
 
 #endif

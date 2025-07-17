@@ -92,3 +92,13 @@ float* to_gpu(const vector<float>& data) {
     cudaMemcpy(d_data, data.data(), data.size() * sizeof(float), cudaMemcpyHostToDevice);
     return d_data;
 }
+
+float round_to_sigfigs(float num, int n) {
+    if (num == 0.0f) return 0.0f;
+
+    float d = std::ceil(std::log10(std::fabs(num)));
+    int power = n - static_cast<int>(d);
+    float magnitude = std::pow(10.0f, power);
+
+    return std::round(num * magnitude) / magnitude;
+}
