@@ -135,7 +135,7 @@ public:
 class LossFuncBase {
     public:
     LossFuncBase();
-    virtual float forward(float* output, float* target_output, int batch_size, int num_classes) = 0;
+    virtual float* forward(float* output, float* target_output, int batch_size, int num_classes) = 0;
     virtual float* backward() = 0;
     virtual ~LossFuncBase() {}
 };
@@ -329,7 +329,9 @@ class Layer {
     void initialize(int batch_size); // Secondary assign: weights and biases
     float* forward(float* inputvals);
     float* backward(float* grad_output);
+    float* forward_prediction(float* inputval);
     ~Layer();
+    
 };
 // ===============================================================================
 
@@ -338,20 +340,43 @@ class Network {
     int id;
     int BatchSize;
     int EpochNumber;
-    vector<Layer> Layers;
+    vector<Layer*> Layers;
     LossFuncBase* LossFunction;
     LearningRateDecayFuncBase* LearningRateDecayFunction;
     RegularizationFuncBase* RegularizationFunction;    
     Network(int id);
 
-    void add_Layer(Layer layer);
+    void add_Layer(Layer* layer);
     void compile_network(LossFuncBase* loss_func, LearningRateDecayFuncBase* Lrd_func, RegularizationFuncBase* reg_func, int batch_size);
     float* forward(float* x);
+    void backward(float* grad);
+    void train(vector<vector<float>> input_data, vector<vector<float>> output_target_data, int epoch);
+    int predict(vector<float> input, int outputsize);
+    float Evaluate(vector<vector<float>> input_data, vector<vector<float>> output_target_data);
 
     void log_work(chrono::steady_clock::time_point start);
     void test_activation_function();
     void test_initializer();
 };
+
+// wtf is this
+// ===============================================================================
+template<typename T, typename = void>
+void setTotalEpochIfPossible(T* obj, int value) {
+    // Do nothing if setTotalEpoch doesn't exist
+}
+
+// Overload when T has setTotalEpoch(int)
+template<typename T>
+auto setTotalEpochIfPossible(T* obj, int value)
+    -> std::enable_if_t<
+        std::is_same<decltype(std::declval<T>().setTotalEpoch(0)), void>::value
+    >
+{
+    if (obj) obj->setTotalEpoch(value);
+}
+// ===============================================================================
+
 
 float GetElapsedTime(chrono::steady_clock::time_point);
 string VectorFLoatToString(vector<float>);
@@ -366,5 +391,10 @@ vector<float> to_cpu(const float*, size_t);
 float* to_gpu(const vector<float>&);
 
 float round_to_sigfigs(float num, int n);
+
+void log_location(const char* file, int line);
+#define LOG_LOCATION() log_location(__FILE__, __LINE__)
+
+void Program(int id);
 
 #endif

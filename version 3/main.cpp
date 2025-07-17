@@ -5,15 +5,12 @@ int main(int argc, char* argv[]) {
     if (argc > 1) {
         // This is a spawned process
         int id = stoi(argv[1]);
-        chrono::steady_clock::time_point start = chrono::steady_clock::now();
 
-        Network net(id);
-        net.log_work(start);
-
+        Program(id);
     } 
     else {
         // This is the master process
-        const int num_processes = 8;
+        const int num_processes = 1;
         vector<int> pids;
 
         for (int i = 0; i < num_processes; ++i) {

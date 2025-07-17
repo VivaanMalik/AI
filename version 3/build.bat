@@ -4,5 +4,5 @@
 @echo off
 echo Deleting previous executable.exe...
 del /f /q build\executable.exe >nul 2>&1
-nvcc -std=c++17 -o .\build\executable .\utils.cpp .\utils.cu .\activations.cu .\optimizer.cu .\loss.cu .\Initializer.cu .\regularization.cu .\main.cpp .\network.cu .\Layer.cu .\lrdecay.cpp
+nvcc -std=c++17 -o .\build\executable .\TheACTUALprog.cpp .\utils.cpp .\utils.cu .\activations.cu .\optimizer.cu .\loss.cu .\Initializer.cu .\regularization.cu .\main.cpp .\network.cu .\Layer.cu .\lrdecay.cpp
 @REM build\executable.exe

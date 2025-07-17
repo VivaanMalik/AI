@@ -102,3 +102,12 @@ float round_to_sigfigs(float num, int n) {
 
     return std::round(num * magnitude) / magnitude;
 }
+
+void log_location(const char* file, int line) {
+    // ANSI escape codes for color
+    const char* color_red = "\033[31m";
+    const char* color_cyan = "\033[36m";
+    const char* color_reset = "\033[0m";
+
+    cout << color_cyan << "File: " << file << " " << color_red << "Line: " << line << color_reset << endl;
+}

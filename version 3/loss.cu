@@ -157,7 +157,7 @@ __global__ void mse_loss_kernel(const float* y_pred, const float* y_true, float*
     if (idx < total_elements) {
         float y = y_true[idx];
         float p = y_pred[idx]; 
-        atomicAdd(d_loss, ((p-y) * (p-y))/output_size);
+        atomicAdd(d_loss, ((p-y) * (p-y))/total_elements);
     }
 }
 float* MeanSquaredLoss::forward(float* d_pred, float* d_target, int batch_size, int num_classes) {
@@ -185,7 +185,7 @@ float* MeanSquaredLoss::forward(float* d_pred, float* d_target, int batch_size, 
     mse_loss_kernel<<<num_blocks, threads_per_block>>>(predicted, target, d_loss, output_size);
     // cudaDeviceSynchronize();
 
-    float d_loss;
+    return d_loss;
 }
 __global__ void mse_loss_backward_kernel(float* y_pred, float* y_true, float* grad, int total_elements) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;

@@ -24,7 +24,14 @@ Layer::~Layer() {
     if (OutputValues) cudaFree(OutputValues);
     if (dropout_mask) cudaFree(dropout_mask);
     if (d_state) cudaFree(d_state);
+
+    // ===============================
+    // delete InitializationFunctionClass;
+    // delete ActivationFunctionClass;
+    // delete OptimizerFunctionClass;
+    // ===============================
 }
+
 
 void Layer::initialize(int batch_size) {
     BatchSize = batch_size;
@@ -107,6 +114,16 @@ float* Layer::forward(float* inputvals) {
     return OutputValues;
 }
 
+float* Layer::forward_prediction(float* inputval) {
+    dim3 threadsPerBlock(16, 16);
+    dim3 blocksPerGrid((NodeCount + 15) / 16, 1);
+
+    preactivation_calculation_kernel<<<blocksPerGrid, threadsPerBlock>>>(inputval, weights, biases, OutputValues, PrevNodeCount, NodeCount, 1);
+    if (ActivationFunctionClass)
+        ActivationFunctionClass->forward(OutputValues, 1, NodeCount);
+    return OutputValues;
+}
+
 __global__ void adjust_grad_kernel(float* values, float* mask, float prob, int output_size) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < output_size) {
@@ -158,8 +175,9 @@ __global__ void calculate_derivative_to_pass_on(float* weights, float* gradients
 }
 
 float* Layer::backward(float* grad_output) {
-    if (ActivationFunctionClass)
-        ActivationFunctionClass->backward(grad_output, BatchSize, NodeCount);
+    if (ActivationFunctionClass) {
+        grad_output = ActivationFunctionClass->backward(grad_output, BatchSize, NodeCount);
+    }
 
     if (ProbabilityDropout > 0.0f) {
         int threads = 256;
