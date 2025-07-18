@@ -393,6 +393,7 @@ float* to_gpu(const vector<float>&);
 float round_to_sigfigs(float num, int n);
 
 void log_location(const char* file, int line);
+void print_loss(float* d_loss);
 #define LOG_LOCATION() log_location(__FILE__, __LINE__)
 
 void Program(int id);

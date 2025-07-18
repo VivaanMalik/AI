@@ -44,6 +44,7 @@ void Layer::initialize(int batch_size) {
     }
     cudaMalloc(&derivative_to_pass_on, input_size * sizeof(float));
     cudaMalloc(&OutputValues, output_size * sizeof(float));
+    cudaMemset(OutputValues, 0, output_size * sizeof(float));
 
     weights = InitializationFunctionClass->initialize(PrevNodeCount, NodeCount);
     cudaMemset(biases, 0, NodeCount * sizeof(float));

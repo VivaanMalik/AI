@@ -68,7 +68,7 @@ void Program(int id) {
     model.add_Layer(new Layer(1, 256, 128, new HeNormal(), new LeakyReLU(), new StochasticGradientDescent(initial_lr), Pdropout));
     model.add_Layer(new Layer(2, 128, 64,  new HeNormal(), new LeakyReLU(), new StochasticGradientDescent(initial_lr), Pdropout));
     model.add_Layer(new Layer(3, 64, 10,   new HeNormal(), nullptr,         new StochasticGradientDescent(initial_lr), 0.0f));
-    model.compile_network(new SoftmaxCategoricalCrossEntropy(), new CosineAnnealing(initial_lr, min_lr, total_epoch), new ElasticNet(lambda_value_reg), batch_size);
+    model.compile_network(new MeanSquaredLoss(), new CosineAnnealing(initial_lr, min_lr, total_epoch), new ElasticNet(lambda_value_reg), batch_size);
 
     // define data
     vector<vector<float>> train_images;

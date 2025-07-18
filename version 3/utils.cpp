@@ -111,3 +111,9 @@ void log_location(const char* file, int line) {
 
     cout << color_cyan << "File: " << file << " " << color_red << "Line: " << line << color_reset << endl;
 }
+
+void print_loss(float* d_loss) {
+    float h_loss;
+    cudaMemcpy(&h_loss, d_loss, sizeof(float), cudaMemcpyDeviceToHost);
+    cout << h_loss << endl;
+}

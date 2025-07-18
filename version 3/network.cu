@@ -140,8 +140,8 @@ void Network::train(vector<vector<float>> input_data, vector<vector<float>> outp
             vector<float> flatib = flatten(input_batch);
             vector<float> flattb = flatten(target_batch);
 
-            cudaMemcpy(flatib.data(), input_data_batch, BatchSize * inputsize * sizeof(float), cudaMemcpyDeviceToHost);
-            cudaMemcpy(flattb.data(), output_target_data_batch, BatchSize * outputsize * sizeof(float), cudaMemcpyDeviceToHost);
+            cudaMemcpy(input_data_batch, flatib.data(), BatchSize * inputsize * sizeof(float), cudaMemcpyHostToDevice);
+            cudaMemcpy(output_target_data_batch, flattb.data(), BatchSize * outputsize * sizeof(float), cudaMemcpyHostToDevice);
 
             predicted = this->forward(input_data_batch);
             loss = LossFunction->forward(predicted, output_target_data_batch, BatchSize, outputsize);
