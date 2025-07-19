@@ -55,8 +55,8 @@ void one_hot_encode(const vector<uint8_t>& labels, vector<vector<float>>& one_ho
 void Program(int id) {
     // define params
     cout<<id<<endl;
-    float initial_lr = 0.01f;
-    float min_lr = 1e-4f;
+    float initial_lr = 0.3f;
+    float min_lr = 1e-1f;
     float Pdropout = 0.2f;
     float lambda_value_reg = 0.01f;
     int total_epoch = 10;
@@ -68,7 +68,7 @@ void Program(int id) {
     model.add_Layer(new Layer(1, 256, 128, new HeNormal(), new LeakyReLU(), new StochasticGradientDescent(initial_lr), Pdropout));
     model.add_Layer(new Layer(2, 128, 64,  new HeNormal(), new LeakyReLU(), new StochasticGradientDescent(initial_lr), Pdropout));
     model.add_Layer(new Layer(3, 64, 10,   new HeNormal(), nullptr,         new StochasticGradientDescent(initial_lr), 0.0f));
-    model.compile_network(new MeanSquaredLoss(), new CosineAnnealing(initial_lr, min_lr, total_epoch), new ElasticNet(lambda_value_reg), batch_size);
+    model.compile_network(new SoftmaxCategoricalCrossEntropy(), new CosineAnnealing(initial_lr, min_lr, total_epoch), new ElasticNet(lambda_value_reg), batch_size);
 
     // define data
     vector<vector<float>> train_images;
@@ -87,5 +87,6 @@ void Program(int id) {
     // train and evaluate model
     // Model train mai problem hai
     model.train(train_images, train_labels_one_hot, total_epoch);
-    cout << "Accuracy: " << model.Evaluate(test_images, test_labels_one_hot) << endl ;
+    float acc = model.Evaluate(test_images, test_labels_one_hot);
+    cout << "Accuracy: " << acc << endl ;
 }

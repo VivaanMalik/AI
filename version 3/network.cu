@@ -100,7 +100,7 @@ void Network::train(vector<vector<float>> input_data, vector<vector<float>> outp
     chrono::steady_clock::time_point start = chrono::steady_clock::now();
     float total_time = 0.0f;
     cout << "LET THE TRAINING BEGIN!!!!" << endl;
-    for (int e = 0; e < epoch; e++) {
+    for (int e = 0; e < epoch; e++) {    
         CurrentEpochNumber++;
 
         // shuffle
@@ -189,6 +189,7 @@ void Network::train(vector<vector<float>> input_data, vector<vector<float>> outp
         start = chrono::steady_clock::now();
         // =============================================================================================
     }
+
     cout << "Training ended in: "+to_string(round_to_sigfigs(total_time, 4))+"s\n";
     cudaFree(input_data_batch);
     cudaFree(output_target_data_batch);
@@ -231,15 +232,15 @@ float Network::Evaluate(vector<vector<float>> input_data, vector<vector<float>> 
     float* predicted;
 
     cudaMemset(num_of_correct_predictions, 0, sizeof(int));
-    for (int b = 0; b < datasize; b+=BatchSize) {
+    for (int b = 0; b + BatchSize < datasize; b+=BatchSize) {
         input_batch.assign(input_data.begin() + b, input_data.begin() + b + BatchSize);
         target_batch.assign(output_target_data.begin() + b, output_target_data.begin() + b + BatchSize);
 
         vector<float> flatib = flatten(input_batch);
         vector<float> flattb = flatten(target_batch);
 
-        cudaMemcpy(flatib.data(), input_data_batch, BatchSize * inputsize * sizeof(float), cudaMemcpyDeviceToHost);
-        cudaMemcpy(flattb.data(), output_target_data_batch, BatchSize * outputsize * sizeof(float), cudaMemcpyDeviceToHost);
+        cudaMemcpy(input_data_batch, flatib.data(), BatchSize * inputsize * sizeof(float), cudaMemcpyHostToDevice);
+        cudaMemcpy(output_target_data_batch, flattb.data(), BatchSize * outputsize * sizeof(float), cudaMemcpyHostToDevice);
 
         predicted = this->forward(input_data_batch);
         // =============================================================================================
@@ -255,13 +256,13 @@ float Network::Evaluate(vector<vector<float>> input_data, vector<vector<float>> 
     cudaMemcpy(&h_correct, num_of_correct_predictions, sizeof(int), cudaMemcpyDeviceToHost);
     float accuracy = static_cast<float>(h_correct) / datasize;
 
-    cout << "Accuracy: " + to_string(accuracy*100.0f);
+    // cout << "Accuracy: " + to_string(accuracy*100.0f);
     // =============================================================================================
     
     cudaFree(input_data_batch);
     cudaFree(output_target_data_batch);
     cudaFree(num_of_correct_predictions);
-    return accuracy;
+    return round_to_sigfigs(accuracy*100.0f, 4);
 }
 
 // ========================================================================================================================================

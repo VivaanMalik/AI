@@ -48,6 +48,8 @@ void Layer::initialize(int batch_size) {
 
     weights = InitializationFunctionClass->initialize(PrevNodeCount, NodeCount);
     cudaMemset(biases, 0, NodeCount * sizeof(float));
+    cudaMemset(dW, 0, output_size * sizeof(float));
+    cudaMemset(dB, 0, NodeCount * sizeof(float));
 
     cudaMalloc(&d_state, output_size * sizeof(curandState));
     cudaMemset(d_state, 0, output_size * sizeof(curandState));
@@ -144,7 +146,7 @@ __global__ void calculate_dW(float* input, float* gradients, float* dW, int Prev
             float grad_val = gradients[b * NodeCount + j];
             sum += input_val * grad_val;
         }
-        dW[i * NodeCount + j] = sum;
+        dW[i * NodeCount + j] = sum / BatchSize;;
     }
 }
 
@@ -156,7 +158,7 @@ __global__ void calculate_dB(float* gradients, float* dB, int BatchSize, int Nod
         for (int b = 0; b < BatchSize; b++) {
             sum += gradients[b * NodeCount + neuron];
         }
-        dB[neuron] = sum;
+        dB[neuron] = sum / BatchSize;;
     }
 }
 
@@ -171,7 +173,7 @@ __global__ void calculate_derivative_to_pass_on(float* weights, float* gradients
             float weight_val = weights[i * NodeCount + j];
             sum += grad_val * weight_val;
         }
-        derivative_to_pass_on[b * PrevNodeCount + i] = sum;
+        derivative_to_pass_on[b * PrevNodeCount + i] = sum / BatchSize;;
     }
 }
 
@@ -192,6 +194,7 @@ float* Layer::backward(float* grad_output) {
         (PrevNodeCount + 15) / 16,
         (NodeCount + 15) / 16
     );
+
     calculate_dW<<<blocksPerGrid_dW, threadsPerBlock_dW>>>(input, grad_output, dW, PrevNodeCount, NodeCount, BatchSize);
 
     int threads = 256;
