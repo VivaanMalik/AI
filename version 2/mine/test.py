@@ -16,10 +16,10 @@ save = True
 
 model = nn.NeuralNetwork()
 if start_again:
-    model.add(nn.Layer("Layer the first", 784, 256, nn.ReLU(),  nn.Adam(learning_rate= 0.001), 0.2))
-    model.add(nn.Layer("Layer the second", 256, 128, nn.ReLU(), nn.Adam(learning_rate= 0.001), 0.2))
-    model.add(nn.Layer("Layer the third", 128, 64, nn.ReLU(),   nn.Adam(learning_rate= 0.001), 0.2))
-    model.add(nn.Layer("Layer the fourth", 64, 10, None,        nn.Adam(learning_rate= 0.001), 0.0))
+    model.add(nn.Layer("Layer the first", 784, 512, nn.ReLU(), nn.Adam(0.001), 0.2))
+    model.add(nn.Layer("Layer the second", 512, 256, nn.ReLU(),nn.Adam(0.001), 0.2))
+    model.add(nn.Layer("Layer the third", 256, 128, nn.ReLU(), nn.Adam(0.001), 0.2))
+    model.add(nn.Layer("Layer the fourth", 128, 10, None,      nn.Adam(0.001), 0.0))
 
     model.compile_network(nn.SoftmaxCategoricalCrossEntropy(), nn.He(), nn.CosineAnnealing(0.001, 1e-5))
 else:
@@ -27,7 +27,7 @@ else:
     model.compile_network(nn.SoftmaxCategoricalCrossEntropy())
 
 if train:
-    model.train(images, labels_modified, 10, 32)
+    model.train(images, labels_modified, 10, 30)
 if save:
     model.load_data_to_JSON("data.json")
 
