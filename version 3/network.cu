@@ -1,5 +1,6 @@
 #include "header.hpp"
 #include <random>
+#include <cuda_runtime.h>
 
 Network::Network(int id) : 
     id(id),
@@ -7,7 +8,6 @@ Network::Network(int id) :
     LossFunction(nullptr),
     LearningRateDecayFunction(nullptr),
     EpochNumber(0),
-    RegularizationFunction(nullptr),
     BatchSize(-1) {
     }
 
@@ -15,17 +15,16 @@ void Network::add_Layer(Layer* layer) {
     Layers.emplace_back(layer);
 }
 
-void Network::compile_network(LossFuncBase* loss_func, LearningRateDecayFuncBase* lrd_func, RegularizationFuncBase* reg_func, int batch_size) {
+void Network::compile_network(LossFuncBase* loss_func, LearningRateDecayFuncBase* lrd_func, int batch_size) {
     BatchSize = batch_size;
     if (loss_func)
         LossFunction = loss_func;
     if (lrd_func)
         LearningRateDecayFunction = lrd_func;
-    if (reg_func)
-        RegularizationFunction = reg_func;
     for (int i = 0; i < Layers.size(); i++) {
         Layers[i]->initialize(BatchSize);
     }
+    checkError("Complining shit");
 }
 
 float* Network::forward(float* x) {
@@ -33,20 +32,15 @@ float* Network::forward(float* x) {
         x = Layers[i]->forward(x);
     }
     return x;
+    checkError("forward shit");
 }
 
-void Network::backward(float* grad) {
+void Network::backward(float* grad, float* lossptr) {
     for (int i = Layers.size()-1; i>=0; i--) {
-        grad = Layers[i]->backward(grad);
+        grad = Layers[i]->backward(grad, lossptr);
     }
+    checkError("backward shit");
 }
-
-// template<typename T>
-// void setTotalEpochIfPossible(T& obj, int value) {
-//     if constexpr (requires(T x) { x->setTotalEpoch(value); }) {
-//         obj->setTotalEpoch(value);
-//     }
-// }
 
 __global__ void argmax_and_count_matches(float* prediction, float* target, int* correct_count, int rows, int cols) {
     int row = blockIdx.x * blockDim.x + threadIdx.x;
@@ -81,6 +75,7 @@ __global__ void argmax_and_count_matches(float* prediction, float* target, int* 
 }
 
 void Network::train(vector<vector<float>> input_data, vector<vector<float>> output_target_data, int epoch) {
+    checkError("training shit");
     if (LearningRateDecayFunction)
         setTotalEpochIfPossible(LearningRateDecayFunction, epoch);
 
@@ -100,6 +95,7 @@ void Network::train(vector<vector<float>> input_data, vector<vector<float>> outp
     chrono::steady_clock::time_point start = chrono::steady_clock::now();
     float total_time = 0.0f;
     cout << "LET THE TRAINING BEGIN!!!!" << endl;
+    checkError("training shit pt 2");
     for (int e = 0; e < epoch; e++) {    
         CurrentEpochNumber++;
 
@@ -135,6 +131,14 @@ void Network::train(vector<vector<float>> input_data, vector<vector<float>> outp
 
             // =============================================================================================
             // INSERT NAG KA CODE HERE MUEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHE
+            for (int l = 0; l < Layers.size(); l++) {
+                if (Layers[l]->OptimizerFunctionClass->likeNesterov) {
+                    auto derived = dynamic_cast<OptimizingFuncBaseLikeNAG*>(Layers[l]->OptimizerFunctionClass);
+                    if (derived) {
+                        derived->TemporaryUpdate(Layers[l]->weights, Layers[l]->biases, 1);
+                    }                
+                }
+            }
             // =============================================================================================
 
             vector<float> flatib = flatten(input_batch);
@@ -142,6 +146,7 @@ void Network::train(vector<vector<float>> input_data, vector<vector<float>> outp
 
             cudaMemcpy(input_data_batch, flatib.data(), BatchSize * inputsize * sizeof(float), cudaMemcpyHostToDevice);
             cudaMemcpy(output_target_data_batch, flattb.data(), BatchSize * outputsize * sizeof(float), cudaMemcpyHostToDevice);
+            checkError("Batch 2 shit");
 
             predicted = this->forward(input_data_batch);
             loss = LossFunction->forward(predicted, output_target_data_batch, BatchSize, outputsize);
@@ -154,24 +159,30 @@ void Network::train(vector<vector<float>> input_data, vector<vector<float>> outp
             // =============================================================================================
             
             grad = LossFunction->backward();
-            this->backward(grad);
+            this->backward(grad, loss);
 
-            if (RegularizationFunction) {
-                for (int l = 0; l < Layers.size(); l++) {
-                    RegularizationFunction->UpdateLoss(Layers[l]->weights, loss, Layers[l]->PrevNodeCount * Layers[l]->NodeCount);
-                    RegularizationFunction->UpdateGradient(Layers[l]->weights, grad, Layers[l]->PrevNodeCount * Layers[l]->NodeCount);
-                }
-            }
-
+            checkError("Batch 3 shit");
+            
             // =============================================================================================
             // INSERT SOME MORE NAG KA CODE HERE MUEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHEHE
+            for (int l = 0; l < Layers.size(); l++) {
+                if (Layers[l]->OptimizerFunctionClass->likeNesterov) {
+                    auto derived = dynamic_cast<OptimizingFuncBaseLikeNAG*>(Layers[l]->OptimizerFunctionClass);
+                    if (derived) {
+                        derived->TemporaryUpdate(Layers[l]->weights, Layers[l]->biases, -1);
+                    }                
+                }
+            }
             // =============================================================================================
 
             for (int l = 0; l < Layers.size(); l++) {
-                Layers[l]->OptimizerFunctionClass->step(Layers[l]->weights, Layers[l]->biases, Layers[l]->dW, Layers[l]->dB, Layers[l]->PrevNodeCount, Layers[l]->NodeCount);
-                if (LearningRateDecayFunction) {
-                    Layers[l]->OptimizerFunctionClass->SetNewLR(LearningRateDecayFunction->decay(e));
-                }
+                checkError("PreOptimizer shit");
+                Layers[l]->OptimizerFunctionClass->step(Layers[l]->weights, Layers[l]->biases, Layers[l]->dW, Layers[l]->dB);
+            }
+        }
+        for (int l = 0; l < Layers.size(); l++) {
+            if (LearningRateDecayFunction) {
+                Layers[l]->OptimizerFunctionClass->SetNewLR(LearningRateDecayFunction->decay(e+1));
             }
         }
         // =============================================================================================

@@ -45,9 +45,10 @@ void load_mnist_labels(const string &filename, vector<uint8_t> &labels) {
 }
 
 void one_hot_encode(const vector<uint8_t>& labels, vector<vector<float>>& one_hot_labels, int num_classes = 10) {
-    one_hot_labels.resize(labels.size(), vector<float>(num_classes, 0.0f));
-    for (size_t i = 0; i < labels.size(); ++i) {
-        one_hot_labels[i][labels[i]] = 1.0f;
+    float epsilon = 0.01f;
+    one_hot_labels.resize(labels.size(), vector<float>(num_classes, epsilon));
+    for (size_t i = 0; i < labels.size(); i++) {
+        one_hot_labels[i][labels[i]] = 1.0f - (num_classes-1) * epsilon;
     }
 }
 // ==============================================================================================================================
@@ -55,20 +56,23 @@ void one_hot_encode(const vector<uint8_t>& labels, vector<vector<float>>& one_ho
 void Program(int id) {
     // define params
     cout<<id<<endl;
-    float initial_lr = 0.3f;
-    float min_lr = 1e-1f;
+    float initial_lr = 0.01f;
+    float min_lr = 1e-5f;
     float Pdropout = 0.2f;
-    float lambda_value_reg = 0.01f;
+    float lambda_value_reg = 1e-8f;
     int total_epoch = 10;
-    int batch_size = 32;
+    int batch_size = 30;
+    float momentumcoeff = 0.9f;
+    float fmdr = 0.9f;
+    float smdr = 0.999f;
 
     // define model
     Network model(id);
-    model.add_Layer(new Layer(0, 784, 256, new HeNormal(), new LeakyReLU(), new StochasticGradientDescent(initial_lr), Pdropout));
-    model.add_Layer(new Layer(1, 256, 128, new HeNormal(), new LeakyReLU(), new StochasticGradientDescent(initial_lr), Pdropout));
-    model.add_Layer(new Layer(2, 128, 64,  new HeNormal(), new LeakyReLU(), new StochasticGradientDescent(initial_lr), Pdropout));
-    model.add_Layer(new Layer(3, 64, 10,   new HeNormal(), nullptr,         new StochasticGradientDescent(initial_lr), 0.0f));
-    model.compile_network(new SoftmaxCategoricalCrossEntropy(), new CosineAnnealing(initial_lr, min_lr, total_epoch), new ElasticNet(lambda_value_reg), batch_size);
+    model.add_Layer(new Layer(0, 784, 512, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), nullptr, Pdropout));
+    model.add_Layer(new Layer(1, 512, 256, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), nullptr, Pdropout));
+    model.add_Layer(new Layer(2, 256, 128, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), nullptr, Pdropout));
+    model.add_Layer(new Layer(3, 128, 10,  new HeNormal(), nullptr,    new Adam(fmdr, smdr, initial_lr), nullptr, 0.0f));
+    model.compile_network(new SoftmaxCategoricalCrossEntropy(), new CosineAnnealing(initial_lr, min_lr, total_epoch), batch_size);
 
     // define data
     vector<vector<float>> train_images;
@@ -88,5 +92,5 @@ void Program(int id) {
     // Model train mai problem hai
     model.train(train_images, train_labels_one_hot, total_epoch);
     float acc = model.Evaluate(test_images, test_labels_one_hot);
-    cout << "Accuracy: " << acc << endl ;
+    cout << "Accuracy: " << acc << "%" << endl ;
 }

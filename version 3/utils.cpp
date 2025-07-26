@@ -117,3 +117,14 @@ void print_loss(float* d_loss) {
     cudaMemcpy(&h_loss, d_loss, sizeof(float), cudaMemcpyDeviceToHost);
     cout << h_loss << endl;
 }
+
+void checkError(string msg) {
+    cudaDeviceSynchronize();
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        cout << "CUDA Error [" + msg + "]:" + cudaGetErrorString(err) + "\n";
+        cin.ignore();
+        cout << "\033[A\33[2K";
+    }
+    cudaDeviceSynchronize();
+}

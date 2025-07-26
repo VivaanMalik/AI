@@ -245,25 +245,25 @@ class RegularizationFuncBase {
     public:
     float lambda;
     explicit RegularizationFuncBase(float lambda);
-    virtual void UpdateLoss(float* d_weights, float* d_loss, int weight_size) = 0;
-    virtual void UpdateGradient(float* d_weights, float* d_grad, int weight_size) = 0;
+    virtual void UpdateLoss(float* d_weights, float* d_loss, int weight_size, int BatchSize) = 0;
+    virtual void UpdateGradient(float* d_weights, float* d_grad, int weight_size, int BatchSize) = 0;
     virtual ~RegularizationFuncBase() {}
 };
 
 class L1Regularization : public RegularizationFuncBase {
 public:
-    explicit L1Regularization(float lambda_value = 1e-4);
+    explicit L1Regularization(float lambda_value = 1e-5);
     ~L1Regularization();
-    void UpdateLoss(float* d_weights, float* d_loss, int weight_size);
-    void UpdateGradient(float* d_weights, float* d_grad, int weight_size);
+    void UpdateLoss(float* d_weights, float* d_loss, int weight_size, int BatchSize);
+    void UpdateGradient(float* d_weights, float* d_grad, int weight_size, int BatchSize);
 };
 
 class L2Regularization : public RegularizationFuncBase {
 public:
-    explicit L2Regularization(float lambda_value = 1e-4);
+    explicit L2Regularization(float lambda_value = 1e-5);
     ~L2Regularization();
-    void UpdateLoss(float* d_weights, float* d_loss, int weight_size);
-    void UpdateGradient(float* d_weights, float* d_grad, int weight_size);
+    void UpdateLoss(float* d_weights, float* d_loss, int weight_size, int BatchSize);
+    void UpdateGradient(float* d_weights, float* d_grad, int weight_size, int BatchSize);
 };
 
 class ElasticNet : public RegularizationFuncBase {
@@ -271,11 +271,11 @@ public:
     L1Regularization l1reg;
     L2Regularization l2reg;
 
-    explicit ElasticNet(float lambda_value = 1e-4);
+    explicit ElasticNet(float lambda_value = 1e-5);
     ~ElasticNet();
 
-    void UpdateLoss(float* d_weights, float* d_loss, int weight_size);
-    void UpdateGradient(float* d_weights, float* d_grad, int weight_size);
+    void UpdateLoss(float* d_weights, float* d_loss, int weight_size, int BatchSize);
+    void UpdateGradient(float* d_weights, float* d_grad, int weight_size, int BatchSize);
 };
 // ===============================================================================
 
@@ -283,21 +283,117 @@ public:
 // ===============================================================================
 class OptimizingFuncBase {
     public:
+    bool likeNesterov;
     // OptimizingFuncBase();
-    virtual void step(float* weights, float* biases, float* dW, float* dB, int PrevNodeCount, int NodeCount) = 0;
+    virtual void step(float* weights, float* biases, float* dW, float* dB) = 0;
     virtual void SetNewLR(float NewLR) = 0;
+    virtual void SetSize(int PrevNodeCount, int NodeCount) = 0;
     virtual ~OptimizingFuncBase() {}
+};
+
+class OptimizingFuncBaseLikeNAG {
+public:
+    virtual void TemporaryUpdate(float* weights, float* biases, int positive_negative /* 1, -1*/) = 0;
 };
 
 class StochasticGradientDescent : public OptimizingFuncBase {
     public: 
     float lr;
+    int PNC;
+    int NC;
+    bool likeNesterov = false;
 
     StochasticGradientDescent(float LR);
     ~StochasticGradientDescent();
 
-    void step(float* weights, float* biases, float* dW, float* dB, int PrevNodeCount, int NodeCount);
+    void step(float* weights, float* biases, float* dW, float* dB);
     void SetNewLR(float NewLR);
+    void SetSize(int PrevNodeCount, int NodeCount);
+};
+
+class SGDMomentum : public OptimizingFuncBase {
+    public: 
+    float lr;
+    int PNC;
+    int NC;
+    float MomentumCoeff;
+    bool likeNesterov = false;
+
+    float* WeightVel;
+    float* BiasVel;
+
+
+    SGDMomentum(float momentum_coeff, float LR);
+    ~SGDMomentum();
+
+    void step(float* weights, float* biases, float* dW, float* dB);
+    void SetNewLR(float NewLR);
+    void SetSize(int PrevNodeCount, int NodeCount);
+};
+
+class NesterovAcceleratedGradient : public OptimizingFuncBase, public OptimizingFuncBaseLikeNAG {
+    public: 
+    float lr;
+    int PNC;
+    int NC;
+    float MomentumCoeff;
+    bool likeNesterov = true;
+
+    float* WeightVel;
+    float* BiasVel;
+
+    NesterovAcceleratedGradient(float momentum_coeff, float LR);
+    ~NesterovAcceleratedGradient();
+
+    void step(float* weights, float* biases, float* dW, float* dB);
+    void TemporaryUpdate(float* weights, float* biases, int positive_negative /* 1, -1*/);
+    void SetNewLR(float NewLR);
+    void SetSize(int PrevNodeCount, int NodeCount);
+};
+
+class RMSProp : public OptimizingFuncBase {
+    public: 
+    float lr;
+    int PNC;
+    int NC;
+    float DecayRate;
+    float Epsilon;
+    bool likeNesterov = false;
+
+    float* SqWeightGradAvg;
+    float* SqBiasGradAvg;
+
+
+    RMSProp(float decay_rate, float LR);
+    ~RMSProp();
+
+    void step(float* weights, float* biases, float* dW, float* dB);
+    void SetNewLR(float NewLR);
+    void SetSize(int PrevNodeCount, int NodeCount);
+};
+
+class Adam : public OptimizingFuncBase {
+    public: 
+    float lr;
+    int PNC;
+    int NC;
+    float FirstMomentDecayRate;
+    float SecondMomentDecayRate;
+    float Epsilon;
+    int TimeStep;
+    bool likeNesterov = false;
+
+    float* FirstMomentWeight;
+    float* SecondMomentWeight;
+    float* FirstMomentBias;
+    float* SecondMomentBias;
+
+    Adam(float first_moment_decay_rate, float second_moment_decay_rate, float LR);
+    ~Adam();
+
+    void step(float* weights, float* biases, float* dW, float* dB);
+    void SetNewLR(float NewLR);
+    void SetSize(int PrevNodeCount, int NodeCount);
 };
 // ===============================================================================
 
@@ -314,6 +410,7 @@ class Layer {
     InitializerBase* InitializationFunctionClass;
     ActivationFuncBase* ActivationFunctionClass;
     OptimizingFuncBase* OptimizerFunctionClass;
+    RegularizationFuncBase* RegularizationFunctionClass;    
     float* input;
     float* derivative_to_pass_on;
     float* OutputValues;
@@ -325,10 +422,11 @@ class Layer {
     float* dB;
     curandState *d_state;
 
-    Layer(int id, int prev_node_count, int node_count, InitializerBase* initialization_function, ActivationFuncBase* activation_function, OptimizingFuncBase* optimizer_function, float probability_dropout); // Primary assign: id and shit
-    void initialize(int batch_size); // Secondary assign: weights and biases
+    Layer(int id, int prev_node_count, int node_count, InitializerBase* initialization_function, ActivationFuncBase* activation_function, 
+          OptimizingFuncBase* optimizer_function, RegularizationFuncBase* reg_func, float probability_dropout);
+    void initialize(int batch_size);
     float* forward(float* inputvals);
-    float* backward(float* grad_output);
+    float* backward(float* grad_output, float* lossptr);
     float* forward_prediction(float* inputval);
     ~Layer();
     
@@ -343,13 +441,12 @@ class Network {
     vector<Layer*> Layers;
     LossFuncBase* LossFunction;
     LearningRateDecayFuncBase* LearningRateDecayFunction;
-    RegularizationFuncBase* RegularizationFunction;    
     Network(int id);
 
     void add_Layer(Layer* layer);
-    void compile_network(LossFuncBase* loss_func, LearningRateDecayFuncBase* Lrd_func, RegularizationFuncBase* reg_func, int batch_size);
+    void compile_network(LossFuncBase* loss_func, LearningRateDecayFuncBase* Lrd_func, int batch_size);
     float* forward(float* x);
-    void backward(float* grad);
+    void backward(float* grad, float* lossptr);
     void train(vector<vector<float>> input_data, vector<vector<float>> output_target_data, int epoch);
     int predict(vector<float> input, int outputsize);
     float Evaluate(vector<vector<float>> input_data, vector<vector<float>> output_target_data);
@@ -394,6 +491,7 @@ float round_to_sigfigs(float num, int n);
 
 void log_location(const char* file, int line);
 void print_loss(float* d_loss);
+void checkError(string msg);
 #define LOG_LOCATION() log_location(__FILE__, __LINE__)
 
 void Program(int id);

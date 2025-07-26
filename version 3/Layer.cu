@@ -1,12 +1,12 @@
 #include "header.hpp"
 #include "utils.cuh"
 
-Layer::Layer(int id, int prev_node_count, int node_count, InitializerBase* initialization_function, 
-            ActivationFuncBase* activation_function, OptimizingFuncBase* optimizer_function, float probability_dropout)
+Layer::Layer(int id, int prev_node_count, int node_count, InitializerBase* initialization_function, ActivationFuncBase* activation_function, 
+            OptimizingFuncBase* optimizer_function, RegularizationFuncBase* reg_func, float probability_dropout)
 : ID(id), PrevNodeCount(prev_node_count), NodeCount(node_count), InitializationFunctionClass(initialization_function), 
-  ActivationFunctionClass(activation_function), OptimizerFunctionClass(optimizer_function), ProbabilityDropout(probability_dropout), 
-  weights(nullptr), biases(nullptr), OutputValues(nullptr), dW(nullptr), dB(nullptr), dropout_mask(nullptr), input(nullptr), 
-  d_state(nullptr), derivative_to_pass_on(nullptr) {
+  ActivationFunctionClass(activation_function), OptimizerFunctionClass(optimizer_function), RegularizationFunctionClass(reg_func),
+  ProbabilityDropout(probability_dropout), weights(nullptr), biases(nullptr), OutputValues(nullptr), dW(nullptr), dB(nullptr), 
+  dropout_mask(nullptr), input(nullptr), d_state(nullptr), derivative_to_pass_on(nullptr) {
     int weight_size = PrevNodeCount * NodeCount;
     int bias_size = NodeCount;
 
@@ -15,6 +15,10 @@ Layer::Layer(int id, int prev_node_count, int node_count, InitializerBase* initi
     cudaMalloc(&biases, bias_size * sizeof(float));
     cudaMalloc(&dW, weight_size * sizeof(float));
     cudaMalloc(&dB, bias_size * sizeof(float));
+
+    if (OptimizerFunctionClass != nullptr) {
+        OptimizerFunctionClass->SetSize(PrevNodeCount, NodeCount);
+    }
 }
 Layer::~Layer() {
     if (biases) cudaFree(biases);
@@ -48,7 +52,7 @@ void Layer::initialize(int batch_size) {
 
     weights = InitializationFunctionClass->initialize(PrevNodeCount, NodeCount);
     cudaMemset(biases, 0, NodeCount * sizeof(float));
-    cudaMemset(dW, 0, output_size * sizeof(float));
+    cudaMemset(dW, 0, PrevNodeCount * NodeCount * sizeof(float));
     cudaMemset(dB, 0, NodeCount * sizeof(float));
 
     cudaMalloc(&d_state, output_size * sizeof(curandState));
@@ -146,7 +150,7 @@ __global__ void calculate_dW(float* input, float* gradients, float* dW, int Prev
             float grad_val = gradients[b * NodeCount + j];
             sum += input_val * grad_val;
         }
-        dW[i * NodeCount + j] = sum / BatchSize;;
+        dW[i * NodeCount + j] = sum;
     }
 }
 
@@ -158,7 +162,7 @@ __global__ void calculate_dB(float* gradients, float* dB, int BatchSize, int Nod
         for (int b = 0; b < BatchSize; b++) {
             sum += gradients[b * NodeCount + neuron];
         }
-        dB[neuron] = sum / BatchSize;;
+        dB[neuron] = sum;
     }
 }
 
@@ -173,11 +177,11 @@ __global__ void calculate_derivative_to_pass_on(float* weights, float* gradients
             float weight_val = weights[i * NodeCount + j];
             sum += grad_val * weight_val;
         }
-        derivative_to_pass_on[b * PrevNodeCount + i] = sum / BatchSize;;
+        derivative_to_pass_on[b * PrevNodeCount + i] = sum;
     }
 }
 
-float* Layer::backward(float* grad_output) {
+float* Layer::backward(float* grad_output, float* lossptr) {
     if (ActivationFunctionClass) {
         grad_output = ActivationFunctionClass->backward(grad_output, BatchSize, NodeCount);
     }
@@ -200,6 +204,11 @@ float* Layer::backward(float* grad_output) {
     int threads = 256;
     int blocks = (NodeCount + threads - 1) / threads;
     calculate_dB<<<blocks, threads>>>(grad_output, dB, BatchSize, NodeCount);
+
+    if (RegularizationFunctionClass) {
+        RegularizationFunctionClass->UpdateLoss(weights, lossptr, PrevNodeCount * NodeCount, BatchSize);
+        RegularizationFunctionClass->UpdateGradient(weights, dW, PrevNodeCount * NodeCount, BatchSize);
+    }
 
     dim3 threadsPerBlock_derivative_to_pass_on(16, 16);
     dim3 blocksPerGrid_derivative_to_pass_on(
