@@ -31,8 +31,8 @@ float* Network::forward(float* x) {
     for (int i = 0; i < Layers.size(); i++) {
         x = Layers[i]->forward(x);
     }
-    return x;
     checkError("forward shit");
+    return x;
 }
 
 void Network::backward(float* grad, float* lossptr) {

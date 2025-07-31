@@ -100,7 +100,7 @@ __global__ void cce_loss_kernel(float* y_pred, float* y_true, float* probabiliti
         for (int j = 0; j < num_classes; ++j)
             loss_i -= target_row[j] * logf(fmaxf(prob_row[j], epsilon));
 
-        atomicAdd(d_loss, loss_i/num_classes);
+        atomicAdd(d_loss, loss_i/batch_size);
     }
 }
 float* SoftmaxCategoricalCrossEntropy::forward(float* d_pred, float* d_target, int batch_size, int num_classes) {

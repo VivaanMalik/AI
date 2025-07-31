@@ -49,17 +49,19 @@ void one_hot_encode(const vector<uint8_t>& labels, vector<vector<float>>& one_ho
     one_hot_labels.resize(labels.size(), vector<float>(num_classes, epsilon));
     for (size_t i = 0; i < labels.size(); i++) {
         one_hot_labels[i][labels[i]] = 1.0f - (num_classes-1) * epsilon;
+        // cout << to_string(labels[i]) << ": " << Print1DVector(one_hot_labels[i]);
     }
+
 }
 // ==============================================================================================================================
 
 void Program(int id) {
     // define params
     cout<<id<<endl;
-    float initial_lr = 0.01f;
+    float initial_lr = 0.001f;
     float min_lr = 1e-5f;
     float Pdropout = 0.2f;
-    float lambda_value_reg = 1e-8f;
+    float lambda_value_reg = 1e-5f;
     int total_epoch = 10;
     int batch_size = 30;
     float momentumcoeff = 0.9f;
