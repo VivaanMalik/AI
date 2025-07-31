@@ -126,10 +126,13 @@ class NeuralNetwork():
             
                 for layer in self.Layers:
                     layer.update_wnb()
-                    if self.LearningRateDecayFunc!=None:
-                        if hasattr(self.LearningRateDecayFunc, "SetTotalEpoch"):
-                            self.LearningRateDecayFunc.SetTotalEpoch(self.TotalEpochNumber)
-                        layer.Optimizer.UpdateLearningRate(self.LearningRateDecayFunc.decay(self.EpochNumber))
+
+            for layer in self.Layers:
+                if self.LearningRateDecayFunc!=None:
+                    if hasattr(self.LearningRateDecayFunc, "SetTotalEpoch"):
+                        self.LearningRateDecayFunc.SetTotalEpoch(self.TotalEpochNumber)
+                    layer.Optimizer.UpdateLearningRate(self.LearningRateDecayFunc.decay(self.EpochNumber))
+        
 
             accuracy =  float(xp.mean(pred_acc == truth_acc))
 

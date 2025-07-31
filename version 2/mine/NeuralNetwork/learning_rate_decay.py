@@ -38,4 +38,6 @@ class CosineAnnealing:
         self.total_epoch = T
     
     def decay(self, timestep):
-        return self.min_lr + 0.5 * (self.initial_lr - self.min_lr) * (1+math.cos(math.pi * timestep / self.total_epoch))
+        lr =  self.min_lr + 0.5 * (self.initial_lr - self.min_lr) * (1+math.cos(math.pi * timestep / self.total_epoch))
+        print(lr);
+        return lr

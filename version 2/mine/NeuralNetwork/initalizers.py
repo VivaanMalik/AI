@@ -10,7 +10,7 @@ class Xavier:
 class He:
     def initialize(self, shape):
         layerin, layerout = shape
-        w = xp.random.randn(layerin, layerout) * xp.sqrt(1.0 / (layerin))
+        w = xp.random.randn(layerin, layerout) * xp.sqrt(2.0 / (layerin))
         b = xp.zeros((1, shape[1]))
         return w, b
 
