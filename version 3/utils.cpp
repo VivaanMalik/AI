@@ -18,16 +18,20 @@ string VectorFLoatToString(vector<float> data) {
     return s;
 }
 
-string Print2DMatrix(vector<vector<float>> result) {
+string Print2DMatrix(vector<vector<float>> result, int cap) {
     string actual_out = "";
-    for (int i = 0; i<result.size(); i++) {
+    int size = result.size();
+    if (cap!=-1) {
+        size = cap;
+    }
+    for (int i = 0; i<size; i++) {
         string out = "(";
         for (int j = 0; j<result[i].size(); j++) {
             if (result[i][j]>0) {
                 out+="+";
             }
             out+=to_string(result[i][j]);
-            out+=", ";
+            out+=" ";
         }
         if (!out.empty()) {
             out.pop_back();
@@ -39,6 +43,11 @@ string Print2DMatrix(vector<vector<float>> result) {
     }
     return actual_out;
 }
+
+string Print2DMatrix(vector<vector<float>> result) {
+    return Print2DMatrix(result, -1);
+}
+
 
 string Print1DVector(vector<float> result) {
     string out = "(";

@@ -104,6 +104,7 @@ public:
     float* d_output;
     int current_size = 0;
     float* d_backward_result = nullptr;
+    bool* d_mask;
     int last_batch_size = 0;
 
     ReLU();
@@ -479,6 +480,7 @@ float GetElapsedTime(chrono::steady_clock::time_point);
 string VectorFLoatToString(vector<float>);
 
 string Print2DMatrix(vector<vector<float>>);
+string Print2DMatrix(vector<vector<float>>, int);
 string Print1DVector(vector<float>);
 
 vector<float> flatten(vector<vector<float>>);
