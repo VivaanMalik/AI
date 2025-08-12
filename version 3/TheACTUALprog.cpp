@@ -83,11 +83,11 @@ void Program(int id) {
     vector<vector<float>> test_images;
     vector<uint8_t> test_labels_raw;
     vector<vector<float>> test_labels_one_hot;
-    load_mnist_images("samples\\train-images-idx3-ubyte", train_images);
-    load_mnist_labels("samples\\train-labels-idx1-ubyte", train_labels_raw);
+    load_mnist_images("./samples/train-images-idx3-ubyte", train_images);
+    load_mnist_labels("./samples/train-labels-idx1-ubyte", train_labels_raw);
     one_hot_encode(train_labels_raw, train_labels_one_hot);
-    load_mnist_images("samples\\t10k-images-idx3-ubyte", test_images);
-    load_mnist_labels("samples\\t10k-labels-idx1-ubyte", test_labels_raw);
+    load_mnist_images("./samples/t10k-images-idx3-ubyte", test_images);
+    load_mnist_labels("./samples/t10k-labels-idx1-ubyte", test_labels_raw);
     one_hot_encode(test_labels_raw, test_labels_one_hot);
 
     // train and evaluate model
