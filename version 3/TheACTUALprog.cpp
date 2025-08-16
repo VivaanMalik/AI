@@ -60,7 +60,7 @@ void Program(int id) {
     cout<<id<<endl;
     float initial_lr = 0.001f;
     float min_lr = 1e-5f;
-    float Pdropout = 0.2f;
+    float Pdropout = 0.02f;
     float lambda_value_reg = 1e-5f;
     int total_epoch = 10;
     int batch_size = 30;

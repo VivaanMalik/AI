@@ -1,4 +1,5 @@
 #include "header.hpp"
+#include <algorithm>
 
 ActivationFuncBase::ActivationFuncBase() {}
 
@@ -124,7 +125,7 @@ ReLU::~ReLU() {
     if (d_mask) cudaFree(d_mask);
     if (d_backward_result) cudaFree(d_backward_result);
 }
-__global__ void relu_kernel(const float* input, float* output, bool* mask, int size) {
+__global__ void relu_kernel(const float* input, float* output, int* mask, int size) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size) {
         mask[idx] = input[idx] > 0.0f;
@@ -139,7 +140,7 @@ float* ReLU::forward(float* d_input, int batch_size, int feature_size) {
         if (d_output) cudaFree(d_output);
         cudaMalloc(&d_output, total_size * sizeof(float));
         if (d_mask) cudaFree(d_mask);
-        cudaMalloc(&d_mask, total_size * sizeof(bool));
+        cudaMalloc(&d_mask, total_size * sizeof(int));
         current_size = total_size;
     }
 
@@ -149,9 +150,15 @@ float* ReLU::forward(float* d_input, int batch_size, int feature_size) {
     relu_kernel<<<num_blocks, threads_per_block>>>(d_input, d_output, d_mask, total_size);
     // cudaDeviceSynchronize();
 
+    // vector<float> vec = to_cpu(d_input, total_size);
+    // int negativeCount = std::count_if(vec.begin(), vec.end(), [](int x) {
+    //     return x < 0;
+    // });
+    // cout << "negative is " << negativeCount << "//" << vec.size() << "\n";
+
     return d_output;
 }
-__global__ void relu_backward_kernel(const float* grad, float* result, bool* mask, int size) {
+__global__ void relu_backward_kernel(const float* grad, float* result, int* mask, int size) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (idx < size) {

@@ -104,7 +104,7 @@ public:
     float* d_output;
     int current_size = 0;
     float* d_backward_result = nullptr;
-    bool* d_mask;
+    int* d_mask;
     int last_batch_size = 0;
 
     ReLU();

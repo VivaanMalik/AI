@@ -100,8 +100,11 @@ __global__ void cce_loss_kernel(float* y_pred, float* y_true, float* probabiliti
         for (int j = 0; j < num_classes; ++j)
             loss_i -= target_row[j] * logf(fmaxf(prob_row[j], epsilon));
 
-        atomicAdd(d_loss, loss_i/batch_size);
-    }
+        atomicAdd(d_loss, loss_i);
+    }    
+}
+__global__ void divide_loss(float* d_loss, int batch_size) {
+    *d_loss/=batch_size;
 }
 float* SoftmaxCategoricalCrossEntropy::forward(float* d_pred, float* d_target, int batch_size, int num_classes) {
     // Allocate GPU memory if size changed
@@ -116,7 +119,7 @@ float* SoftmaxCategoricalCrossEntropy::forward(float* d_pred, float* d_target, i
         current_size = output_size;
     }
 
-    target = d_target;
+    cudaMemcpy(target, d_target, output_size * sizeof(float), cudaMemcpyDeviceToDevice);
     batchsize = batch_size;
     numclasses = num_classes;
 
@@ -125,6 +128,7 @@ float* SoftmaxCategoricalCrossEntropy::forward(float* d_pred, float* d_target, i
     int threads_per_block = 256;
     int num_blocks = (batch_size + threads_per_block - 1) / threads_per_block;
     cce_loss_kernel<<<num_blocks, threads_per_block>>>(d_pred, target, probabilities, d_loss, batch_size, num_classes, epsilon);
+    divide_loss<<<1, 1>>>(d_loss, batch_size);
     // cudaDeviceSynchronize();
 
     return d_loss;
