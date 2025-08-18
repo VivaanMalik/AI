@@ -1,4 +1,4 @@
-import cupy as xp
+import numpy as xp
 from .optimizer import *
 
 class Layer:

@@ -1,5 +1,5 @@
 import os
-import cupy as xp
+import numpy as xp
 
 def PrettyPrintMatrix(attr, labelarray = None):
     os.system("color")

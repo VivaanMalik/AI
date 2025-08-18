@@ -1,5 +1,5 @@
 import NeuralNetwork as nn
-import cupy as cp
+import numpy as cp
 import time
 model = nn.NeuralNetwork()
 v = cp.array([[0.1, 0.2, 0.3, 0.4],

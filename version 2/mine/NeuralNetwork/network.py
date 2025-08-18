@@ -2,7 +2,7 @@ import os
 import json
 import random
 import time
-import cupy as xp
+import numpy as xp
 from .layer import Layer
 from .activations import FindActivation
 from .optimizer import NesterovAcceleratedGradient, FindOptimizer

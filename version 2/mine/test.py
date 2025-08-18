@@ -1,6 +1,6 @@
 import NeuralNetwork as nn
 from mnist import MNIST # python-mnist
-import cupy as cp
+import numpy as cp
 
 num_classes = 10
 mnist_data = MNIST("samples")

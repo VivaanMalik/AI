@@ -1,4 +1,4 @@
-import cupy as xp
+import numpy as xp
 
 class L2Regularization:
     def __init__(self, Lambda = 1e-4):
