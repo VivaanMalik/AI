@@ -17,6 +17,12 @@ class ReLU:
 
     def forward(self, x):
         self.mask = x > 0
+        count = 0
+        for i in self.mask:
+            for j in i:
+                if j==False:
+                    count+=1
+        print(str(count)+"/"+str(len(self.mask)*len(self.mask[0])))
         return xp.where(self.mask, x, 0)
     
     def backward(self, grad):
