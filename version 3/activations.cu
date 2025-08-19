@@ -129,7 +129,7 @@ __global__ void relu_kernel(const float* input, float* output, int* mask, int si
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size) {
         mask[idx] = input[idx] > 0.0f;
-        output[idx] = input[idx] * static_cast<float>(mask[idx]);
+        output[idx] = input[idx] * mask[idx];
     }
 }
 float* ReLU::forward(float* d_input, int batch_size, int feature_size) {
@@ -150,19 +150,30 @@ float* ReLU::forward(float* d_input, int batch_size, int feature_size) {
     relu_kernel<<<num_blocks, threads_per_block>>>(d_input, d_output, d_mask, total_size);
     // cudaDeviceSynchronize();
 
-    // vector<float> vec = to_cpu(d_input, total_size);
-    // int negativeCount = std::count_if(vec.begin(), vec.end(), [](int x) {
-    //     return x < 0;
-    // });
-    // cout << "negative is " << negativeCount << "//" << vec.size() << "\n";
+    // ============================================================================
+    vector<float> vec = to_cpu(d_output, total_size);
+    int negativeCount = std::count_if(vec.begin(), vec.end(), [](float x) {
+        return x < 0.0f;
+    });
+    cout << "negative is " << negativeCount << "/" << vec.size() << "\n";
+    // ============================================================================
 
     return d_output;
 }
+/*
+7532 / 15360
+3950 / 7680
+2070 / 3840
+
+343 / 15360
+561 / 7680
+652 / 3840
+*/
 __global__ void relu_backward_kernel(const float* grad, float* result, int* mask, int size) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (idx < size) {
-        result[idx] = static_cast<float>(mask[idx]) * grad[idx];
+        result[idx] = mask[idx] * grad[idx];
     }
 }
 float* ReLU::backward(float* d_grad, int batch_size, int feature_size) {

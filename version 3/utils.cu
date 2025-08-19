@@ -3,7 +3,7 @@
 
 __global__ void setup_kernel(curandState *state, unsigned long seed) {
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    curand_init(seed, idx, idx, &state[idx]);
+    curand_init(seed, idx, 0, &state[idx]);
 }
 
 __global__ void check_rng(curandState* state, int size) {
