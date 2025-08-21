@@ -151,11 +151,11 @@ float* ReLU::forward(float* d_input, int batch_size, int feature_size) {
     // cudaDeviceSynchronize();
 
     // ============================================================================
-    vector<float> vec = to_cpu(d_output, total_size);
-    int negativeCount = std::count_if(vec.begin(), vec.end(), [](float x) {
-        return x < 0.0f;
-    });
-    cout << "negative is " << negativeCount << "/" << vec.size() << "\n";
+    // vector<float> vec = to_cpu(d_output, total_size);
+    // int negativeCount = std::count_if(vec.begin(), vec.end(), [](float x) {
+    //     return x < 0.0f;
+    // });
+    // cout << "negative is " << negativeCount << "/" << vec.size() << "\n";
     // ============================================================================
 
     return d_output;

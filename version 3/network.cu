@@ -24,7 +24,7 @@ void Network::compile_network(LossFuncBase* loss_func, LearningRateDecayFuncBase
     for (int i = 0; i < Layers.size(); i++) {
         Layers[i]->initialize(BatchSize);
     }
-    checkError("Complining shit");
+    checkError("Compiling shit");
 }
 
 float* Network::forward(float* x) {

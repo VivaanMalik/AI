@@ -61,7 +61,7 @@ void Program(int id) {
     float initial_lr = 0.001f;
     float min_lr = 1e-5f;
     float Pdropout = 0.02f;
-    float lambda_value_reg = 1e-5f;
+    float lambda_value_reg = 1e-3f;
     int total_epoch = 10;
     int batch_size = 30;
     float momentumcoeff = 0.9f;
@@ -70,10 +70,10 @@ void Program(int id) {
 
     // define model
     Network model(id);
-    model.add_Layer(new Layer(0, 784, 512, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), nullptr, Pdropout));
-    model.add_Layer(new Layer(1, 512, 256, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), nullptr, Pdropout));
-    model.add_Layer(new Layer(2, 256, 128, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), nullptr, Pdropout));
-    model.add_Layer(new Layer(3, 128, 10,  new HeNormal(), nullptr,    new Adam(fmdr, smdr, initial_lr), nullptr, 0.0f));
+    model.add_Layer(new Layer(0, 784, 512, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), new ElasticNet(lambda_value_reg), Pdropout));
+    model.add_Layer(new Layer(1, 512, 256, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), new ElasticNet(lambda_value_reg), Pdropout));
+    model.add_Layer(new Layer(2, 256, 128, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), new ElasticNet(lambda_value_reg), Pdropout));
+    model.add_Layer(new Layer(3, 128, 10,  new HeNormal(), nullptr,    new Adam(fmdr, smdr, initial_lr), new ElasticNet(lambda_value_reg), 0.0f));
     model.compile_network(new SoftmaxCategoricalCrossEntropy(), new CosineAnnealing(initial_lr, min_lr, total_epoch), batch_size);
 
     // define data
@@ -91,7 +91,7 @@ void Program(int id) {
     one_hot_encode(test_labels_raw, test_labels_one_hot);
 
     // train and evaluate model
-    // Model train mai problem hai
+    // Model train mai problem hai fuck
     model.train(train_images, train_labels_one_hot, total_epoch);
     float acc = model.Evaluate(test_images, test_labels_one_hot);
     cout << "Accuracy: " << acc << "%" << endl ;

@@ -161,11 +161,11 @@ float* HeNormal::initialize(int shape_0, int shape_1) {
     cudaDeviceSynchronize();
 
     // ============================================================================
-    vector<float> vec = to_cpu(d_weights, total_size);
-    int negativeCount = std::count_if(vec.begin(), vec.end(), [](float x) {
-        return x < 0.0f;
-    });
-    cout << "negative is " << negativeCount << "/" << vec.size() << "\n";
+    // vector<float> vec = to_cpu(d_weights, total_size);
+    // int negativeCount = std::count_if(vec.begin(), vec.end(), [](float x) {
+    //     return x < 0.0f;
+    // });
+    // cout << "negative is " << negativeCount << "/" << vec.size() << "\n";
     // ============================================================================
 
     cudaFree(d_state);

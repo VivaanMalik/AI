@@ -110,7 +110,8 @@ float* Layer::forward(float* inputvals) {
 
     // cout << ID << "\n";
     if (ActivationFunctionClass)
-        ActivationFunctionClass->forward(OutputValues, BatchSize, NodeCount);
+        OutputValues = ActivationFunctionClass->forward(OutputValues, BatchSize, NodeCount);
+        
 
     // Dropout
     if (ProbabilityDropout > 0.0f) {
@@ -128,7 +129,7 @@ float* Layer::forward_prediction(float* inputval) {
 
     preactivation_calculation_kernel<<<blocksPerGrid, threadsPerBlock>>>(inputval, weights, biases, OutputValues, PrevNodeCount, NodeCount, 1);
     if (ActivationFunctionClass)
-        ActivationFunctionClass->forward(OutputValues, 1, NodeCount);
+        OutputValues = ActivationFunctionClass->forward(OutputValues, 1, NodeCount);
     return OutputValues;
 }
 
