@@ -57,7 +57,6 @@ void one_hot_encode(const vector<uint8_t>& labels, vector<vector<float>>& one_ho
 
 void Program(int id) {
     // define params
-    cout<<id<<endl;
     float initial_lr = 0.001f;
     float min_lr = 1e-5f;
     float Pdropout = 0.02f;
