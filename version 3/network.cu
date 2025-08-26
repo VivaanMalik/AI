@@ -97,7 +97,6 @@ void Network::train(vector<vector<float>> input_data, vector<vector<float>> outp
     cout << "LET THE TRAINING BEGIN!!!!" << endl;
     checkError("training shit pt 2");
     for (int e = 0; e < epoch; e++) {    
-        CurrentEpochNumber++;
 
         // shuffle
         vector<int> indices(datasize);
@@ -199,6 +198,8 @@ void Network::train(vector<vector<float>> input_data, vector<vector<float>> outp
         cout << "Epoch: " + to_string(CurrentEpochNumber) + " | Loss: " + to_string(round_to_sigfigs(h_loss, 5)) + " | Accuracy: " + to_string(round_to_sigfigs(accuracy*100.0f, 4))+"% | " + to_string(elapsed_time) + "s\n";
         start = chrono::steady_clock::now();
         // =============================================================================================
+
+        CurrentEpochNumber++;
     }
 
     cout << "Training ended in: "+to_string(round_to_sigfigs(total_time, 4))+"s\n";
