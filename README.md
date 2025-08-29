@@ -1,9 +1,6 @@
 # Unnamed Machine Learning Framework (temp name) [V3]
 An ML framwork written in c++ and CUDA (only MLP as of now)
 
-![Evaluation](https://github.com/VivaanMalik/AI/blob/main/READMEdata/evaluation.jpeg?raw=true)
-High Accuracy evaluation (slight overfitting)
-
 ---
 
 ## Table of Contents
