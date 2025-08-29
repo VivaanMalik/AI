@@ -1,15 +1,8 @@
-# Unnamed Machine Learning Framework (temp name)
-A pure python ML framwork from scratch (only MLP as of now)
+# Unnamed Machine Learning Framework (temp name) [V3]
+An ML framwork written in c++ and CUDA (only MLP as of now)
 
 ![Evaluation](https://github.com/VivaanMalik/AI/blob/main/READMEdata/evaluation.jpeg?raw=true)
 High Accuracy evaluation (slight overfitting)
-
----
-
-![Comparison with Tensorflow](https://github.com/VivaanMalik/AI/blob/main/READMEdata/comparison.jpeg?raw=true)
-The only reason tensorflow was less acurate was due to me using lr decay (mb)
-BUT, the only reason tensorflow is faster, is because they use c++
-(mines PURELY python) 
 
 ---
 
@@ -57,29 +50,16 @@ This is a subtle flex that the first ML Framework I used (even semiseriously) wa
 
 #### Modifed Layers
 Each Layer has its own
-* unique custom ID
+* Unique ID
 * Initialization function
 * Activation function
 * Optimization function
-* dropout probability
-  
----
-
-#### Load data to and from a specified JSON file
-This function can store and retrieve 
-* No of Epoch the network has run for (including all previous runs)
-* weights and biases
-* custom IDs for each layer
-* network layer configuration
-* activation function per layer
-* optimization function per layer 
-* any paramters (if applicable) that the optimization function needs.
+* Dropout probability
+* Regularization function
   
 ---
   
 #### Training function
-* Handles everything for you
-* Can change batch size
 * Auto shuffles datasets in batches
 * Prints loss and time taken for every epoch
 
@@ -88,14 +68,15 @@ This function can store and retrieve
 #### Evaluation function
 Evaluates the network and send the following data
 * Accuracy
-* A label-wise confusion matrix that can be color coded using ```utils.py```
+* A label-wise confusion matrix that can be color coded using ```utils.cpp```
 
 ---
 
 #### Initialization Functions
-* Xavier
-* He
 * Uniform Xavier
+* Uniform He
+* Normal Xavier
+* Normal He
 
 ---
 
@@ -134,95 +115,92 @@ Evaluates the network and send the following data
 ---
 
 #### Weight Decay Functions
+* L1 Regularization
 * L2 Regularization
+* ElasticNet Regularization
 
 ---
 
-#### Utility Functions
+#### Some Utility Functions
 
-* Pretty Print Matrix
-    💡 **Note:** This is designed specifically for the confusion matrix returned from ```NeuralNetwork().NeuralNetwork().evaluate()```.
-* Adjust Output (normalization?)
-* Convert Int For Classification (eg: 0 = [1, 0, ...], 1 = [0, 1, ...])
+* vector<float> to string
+* vector<vector<float>> to string (with a cap and without)
+* flatten vector<vector<float>>
+* unflatten vector<float>
   
 ## Documentation of classes and methods (per file)
 
 #### network
-> class NeuralNetwork()
+> Network(int id)
 > ```
-> no parameters
-> ```
-
-> method add(layer)
-> ```
-> layer: Layer class to add
+> id: Unique Network ID
 > ```
 
-> method load_data_from_JSON(filepath)
+> void add_Layer(Layer* layer)
 > ```
-> filepath: file path of JSON file to use
-> ```
-
-> method load_data_to_JSON(filepath)
-> ```
-> filepath: file path of JSON file to use
+> layer: Layer pointer to add to vector<Layer*> Layers
 > ```
 
-> method compile_network(loss, initializer = None, lrdecayfunc = None, WeightDecayFunc = None)
+> void compile_network(LossFuncBase* loss_func, LearningRateDecayFuncBase* lrd_func, int batch_size)
 > ```
-> loss: set loss function
-> initializer: set initializer
-> lrdecayfunc: set decay function for learning rate
-> WeightDecayFunc: set decay function for weights (it increases loss based on how big weights are)
-> ```
-
-> method train(input_values, target_values, epochs, batch_size)
-> ```
-> input_values: input value dataset list
-> target_values: target value dataset list
-> epochs: no. of forward+baclward propogation cycles
-> batch_size: affects how much the neural network 'spreads'
+> loss_func: Set loss function
+> lrd_func: Set decay function for learning rate
+> batch_size: Set Batch size
 > ```
 
-> method predict(input_values)
+> void train(vector<vector<float>> input_data, vector<vector<float>> output_target_data, int epoch)
 > ```
-> input_values: input value dataset list
+> input_data: Input value dataset
+> output_target_data: Target value dataset
+> epoch: No. of forward+baclward propogation cycles
 > ```
 
-> method evaluate(testinput, testtargetoutput)
+> int predict(vector<float> input, int outputsize)
 > ```
-> testinput: input value dataset list
-> testtargetoutput: target value dataset list
-> Metrics: list of metrics to calculate
+> input: Input value dataset list
+> outputsize: No. of classes
+> ```
+
+> float Evaluate(vector<vector<float>> input_data, vector<vector<float>> output_target_data)
+> ```
+> input_data: Input value dataset list
+> output_target_data: Target value dataset list
 > ```
 
 ---
 
 #### layer
-> class Layer(ID, PreviousLayerNodeCount, CurrentLayerNodeCount, ActivationFunction = None, OptimizingFunction = StochasticGradientDescent(), DropOutProbability = 0)
+> Layer(int id, int prev_node_count, int node_count, InitializerBase* initialization_function, ActivationFuncBase* activation_function, OptimizingFuncBase* optimizer_function, RegularizationFuncBase* reg_func, float probability_dropout)
 > ```
-> ID: Custom 'name' to give the layer
-> PreviousLayerNodeCount: no. of nodes in the previous layer
-> CurrentLayerNodeCount: no. of nodes in the layer being defined
-> ActivationFunction: class of the activation function, if None its passed without being modified
-> OptimizingFunction: class of the Optimization function, SGD by default
-> DropOutProbability: probability to drop nodes out, 0 by default
+> id: Unique Layer ID
+> prev_node_count: No. of nodes in the previous layer
+> node_count: No. of nodes in the layer being defined
+> initialization_function: Initialize Function's pointer
+> activation_function: Activation Function's pointer, nullptr -> no activation
+> optimizer_function: Optimizer Function's pointer
+> reg_func: Regularization Function's pointer
+> probability_dropout: probability to drop nodes out, put 0 to stop drop out
 > ```
 
 ---
 
 #### initializer
-> class Xavier()
+> XavierNormal()
 > ```
 > no parameters
 > ```
 
-> class He()
+> XavierUniform()
 > ```
 > no parameters
 > ```
 
-> class XavierUniform()
+> HeNormal()
+> ```
+> no parameters
+> ``````
+
+> HeUniform()
 > ```
 > no parameters
 > ```
@@ -230,17 +208,22 @@ Evaluates the network and send the following data
 ---
 
 #### activations
-> class Sigmoid()
+> Sigmoid()
 > ```
 > no parameters
 > ```
 
-> class ReLU()
+> Tanh()
 > ```
 > no parameters
 > ```
 
-> class LeakyReLU()
+> ReLU()
+> ```
+> no parameters
+> ```
+
+> LeakyReLU()
 > ```
 > no parameters
 > ```
@@ -248,17 +231,17 @@ Evaluates the network and send the following data
 ---
 
 #### losses
-> class BinaryCrossEntropy()
+> BinaryCrossEntropy()
 > ```
 > no parameters
 > ```
 
-> class SoftmaxCategoricalCrossEntropy()
+> SoftmaxCategoricalCrossEntropy()
 > ```
 > no parameters (use None for activation function)
 > ```
 
-> class MeanSquaredError()
+> MeanSquaredLoss()
 > ```
 > no parameters
 > ```
@@ -266,128 +249,182 @@ Evaluates the network and send the following data
 ---
 
 #### optimizer
-> class StochasticGradientDescent(learning_rate = 0.01, load_param = None)
+> StochasticGradientDescent(float LR)
 > ```
-> learning_rate: affects change in weights and biases
-> load_param: this does not need to be filled out
+> LR: affects change in weights and biases
 > ```
 
-> class SGDMomentum(momentum_coeff = 0.9, learning_rate = 0.01, load_param = None)
+> SGDMomentum(float momentum_coeff, float LR)
 > ```
 > momentum_coeff: affects how much of the previous momentum is retained
-> learning_rate: affects change in weights and biases
-> load_param: this does not need to be filled out
+> LR: affects change in weights and biases
 > ```
 
-> class NesterovAcceleratedGradient(momentum_coeff = 0.9, learning_rate = 0.01, load_param = None)
+> NesterovAcceleratedGradient(float momentum_coeff, float LR)
 > ```
 > momentum_coeff: affects how much of the previous momentum is retained
-> learning_rate: affects change in weights and biases
-> load_param: this does not need to be filled out
+> LR: affects change in weights and biases
 > ```
 
-> class RMSProp(decay_rate = 0.9, learning_rate = 0.01, load_param = None)
+> RMSProp(float decay_rate, float LR)
 > ```
 > decay_rate: affects how fast the change in weights and biases change
-> learning_rate: affects change in weights and biases
-> load_param: this does not need to be filled out
+> LR: affects change in weights and biases
 > ```
 
-> class Adam(first_moment_decay_rate = 0.9, second_moment_decay_rate = 0.999, learning_rate = 0.001, timestep = 0)
+> Adam(float first_moment_decay_rate, float second_moment_decay_rate, float LR)> 
 > ```
 > first_moment_decay_rate: affects mean
 > second_moment_decay_rate: affects variance
-> learning_rate: affects change in weights and biases
-> timestep: this does not need to be filled out
-> load_param: this does not need to be filled out
+> LR: affects change in weights and biases
 > ```
 
 ---
 
 #### learning_rate_decay
-> class StepDecay(initial_lr, decay_step_size, decay_factor = 0.5)
+> StepDecay(float initial_lr, float min_lr, int decay_step_size, float decay_factor)
 > ```
 > initial_lr: initial learning rate to start with
-> decay_step_size: updates learning rate every _ steps
+> min_lr: minimum learning rate allowed
+> decay_step_size: updates learning rate every `decay_step_size` steps
 > decay_factor: affects how drastically learning rate is changed
 > ```
 
-> class ExponentialDecay(initial_lr, decay_constant = 0.01)
+> ExponentialDecay(float initial_lr, float min_lr, float decay_constant)
 > ```
 > initial_lr: initial learning rate to start with
+> min_lr: minimum learning rate allowed
 > decay_constant: affects how drastically learning rate is changed
 > ```
 
-> class LinearDecay(initial_lr, total_epoch = None)
+> LinearDecay(float initial_lr, float min_lr, int total_epoch)
 > ```
 > initial_lr: initial learning rate to start with
-> total_epoch: this does not need to be filled out
+> min_lr: minimum learning rate allowed
+> total_epoch: no. of epoch
 > ```
 
-> class CosineAnnealing(initial_lr, min_lr, total_epoch = None)
+> CosineAnnealing(float initial_lr, float min_lr, int total_epoch)
 > ```
 > initial_lr: initial learning rate to start with
 > min_lr: lower bound for the lerning rate
-> total_epoch: this does not need to be filled out
+> total_epoch: no. of epoch
 > ```
 
-#### weight_decay
-> class L2Regularization(Lambda)
+#### regularization
+> L1Regularization(float lambda_value)
 > ```
-> Lambda: affects how much loss to add 
+> Lambda: affects how much weights are affected 
 > ```
 
-## Example program
+> L2Regularization(float lambda_value)
+> ```
+> Lambda: affects how much weights are affected 
+> ```
+
+> ElasticNet(float lambda_value)
+> ```
+> Lambda: affects how much weights are affected 
+> ```
+
+## Example program [MNIST DATASET]
 ```
-import NeuralNetwork as nn
-from mnist import MNIST # python-mnist
-import cupy as cp
+#include "header.hpp"
+#include <fstream>
+#include <vector>
 
-num_classes = 10
-mnist_data = MNIST("samples")
-images, labels = mnist_data.load_training()
-images = [[j/255.0 for j in i] for i in images]
+// chat gpt ahhhh code cuz i was too lazy to make my own mnist loader 
+// ==============================================================================================================================
+uint32_t read_uint32(ifstream &ifs) {
+    uint32_t result = 0;
+    for (int i = 0; i < 4; ++i)
+        result = (result << 8) | ifs.get();
+    return result;
+}
 
-labels = nn.ConvertIntForClassification(labels, num_classes)
-labels_modified = nn.AdjustOutput(labels, num_classes)
+void load_mnist_images(const string &filename, vector<vector<float>> &images) {
+    ifstream file(filename, ios::binary);
+    if (!file) throw runtime_error("Cannot open file: " + filename);
 
-start_again = True
-train = True
-save = True
+    uint32_t magic = read_uint32(file);
+    uint32_t num_images = read_uint32(file);
+    uint32_t rows = read_uint32(file);
+    uint32_t cols = read_uint32(file);
 
-model = nn.NeuralNetwork()
-if start_again:
-    model.add(nn.Layer("Layer the first", 784, 256, nn.ReLU(),  nn.Adam(learning_rate= 0.001), 0.2))
-    model.add(nn.Layer("Layer the second", 256, 128, nn.ReLU(), nn.Adam(learning_rate= 0.001), 0.2))
-    model.add(nn.Layer("Layer the third", 128, 64, nn.ReLU(),   nn.Adam(learning_rate= 0.001), 0.2))
-    model.add(nn.Layer("Layer the fourth", 64, 10, None,        nn.Adam(learning_rate= 0.001), 0.0))
+    images.resize(num_images, vector<float>(rows * cols));
 
-    model.compile_network(nn.SoftmaxCategoricalCrossEntropy(), nn.He(), nn.CosineAnnealing(0.001, 1e-5))
-else:
-    model.load_data_from_JSON("data.json")
-    model.compile_network(nn.SoftmaxCategoricalCrossEntropy())
+    for (uint32_t i = 0; i < num_images; ++i) {
+        for (uint32_t j = 0; j < rows * cols; ++j) {
+            uint8_t pixel = file.get();
+            images[i][j] = pixel / 255.0f;
+        }
+    }
+}
 
-if train:
-    model.train(images, labels_modified, 10, 32)
-if save:
-    model.load_data_to_JSON("data.json")
+void load_mnist_labels(const string &filename, vector<uint8_t> &labels) {
+    ifstream file(filename, ios::binary);
+    if (!file) throw runtime_error("Cannot open file: " + filename);
 
-print("\nEvaluation of Training Data")
-evaluationdata = model.evaluate(images, labels)
-acc = evaluationdata["Accuracy"]
-cm = evaluationdata["ConfusionMatrix"]
-print("Accuracy: "+str(round(acc*100, 2))+"%")
-print(nn.PrettyPrintMatrix(cm))
+    uint32_t magic = read_uint32(file);
+    uint32_t num_labels = read_uint32(file);
 
-print("\nEvaluation of Testing Data")
-mnist_data = MNIST("samples")
-images, labels = mnist_data.load_testing()
-images = [[j/255.0 for j in i] for i in images]
-labels = cp.eye(10)[labels].tolist()
+    labels.resize(num_labels);
 
-evaluationdata = model.evaluate(images, labels)
-acc = evaluationdata["Accuracy"]
-cm = evaluationdata["ConfusionMatrix"]
-print("Accuracy: "+str(round(acc*100, 2))+"%")
-print(nn.PrettyPrintMatrix(cm))
+    for (uint32_t i = 0; i < num_labels; ++i) {
+        labels[i] = file.get();
+    }
+}
+
+void one_hot_encode(const vector<uint8_t>& labels, vector<vector<float>>& one_hot_labels, int num_classes = 10) {
+    float epsilon = 0.01f;
+    one_hot_labels.resize(labels.size(), vector<float>(num_classes, epsilon));
+    for (size_t i = 0; i < labels.size(); i++) {
+        one_hot_labels[i][labels[i]] = 1.0f - (num_classes-1) * epsilon;
+        // cout << to_string(labels[i]) << ": " << Print1DVector(one_hot_labels[i]);
+    }
+
+}
+// ==============================================================================================================================
+
+int main() {
+    // define params
+    float initial_lr = 0.001f;
+    float min_lr = 1e-5f;
+    float Pdropout = 0.02f;
+    float lambda_value_reg = 1e-4f;
+    int total_epoch = 10;
+    int batch_size = 30;
+    float momentumcoeff = 0.9f;
+    float fmdr = 0.9f;
+    float smdr = 0.999f;
+
+    // define model
+    Network model(0);
+    model.add_Layer(new Layer(0, 784, 512, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), new ElasticNet(lambda_value_reg), Pdropout));
+    model.add_Layer(new Layer(1, 512, 256, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), new ElasticNet(lambda_value_reg), Pdropout));
+    model.add_Layer(new Layer(2, 256, 128, new HeNormal(), new ReLU(), new Adam(fmdr, smdr, initial_lr), new ElasticNet(lambda_value_reg), Pdropout));
+    model.add_Layer(new Layer(3, 128, 10,  new HeNormal(), nullptr,    new Adam(fmdr, smdr, initial_lr), new ElasticNet(lambda_value_reg), 0.0f));
+    model.compile_network(new SoftmaxCategoricalCrossEntropy(), new CosineAnnealing(initial_lr, min_lr, total_epoch), batch_size);
+
+    // define data
+    vector<vector<float>> train_images;
+    vector<uint8_t> train_labels_raw;
+    vector<vector<float>> train_labels_one_hot;
+    vector<vector<float>> test_images;
+    vector<uint8_t> test_labels_raw;
+    vector<vector<float>> test_labels_one_hot;
+    load_mnist_images("./samples/train-images-idx3-ubyte", train_images);
+    load_mnist_labels("./samples/train-labels-idx1-ubyte", train_labels_raw);
+    one_hot_encode(train_labels_raw, train_labels_one_hot);
+    load_mnist_images("./samples/t10k-images-idx3-ubyte", test_images);
+    load_mnist_labels("./samples/t10k-labels-idx1-ubyte", test_labels_raw);
+    one_hot_encode(test_labels_raw, test_labels_one_hot);
+
+    // train and evaluate model
+    // Model train mai problem hai fuck
+    model.train(train_images, train_labels_one_hot, total_epoch);
+    float acc = model.Evaluate(test_images, test_labels_one_hot);
+    cout << "Accuracy: " << acc << "%" << endl ;
+    return 0;
+}
 ```
