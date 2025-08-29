@@ -235,7 +235,7 @@ Evaluates the network and send the following data
 
 > SoftmaxCategoricalCrossEntropy()
 > ```
-> no parameters (use None for activation function)
+> no parameters (use nullptr for activation function)
 > ```
 
 > MeanSquaredLoss()
