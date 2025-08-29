@@ -61,7 +61,7 @@ int main() {
     float min_lr = 1e-5f;
     float Pdropout = 0.02f;
     float lambda_value_reg = 1e-4f;
-    int total_epoch = 15;
+    int total_epoch = 10;
     int batch_size = 30;
     float momentumcoeff = 0.9f;
     float fmdr = 0.9f;
